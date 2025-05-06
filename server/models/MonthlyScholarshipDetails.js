@@ -1,7 +1,7 @@
 const mongoose = require("mongoose");
 const monthlyScholarshipDetailsSchema = new mongoose.Schema({
     date: {
-        type: date,
+        type: Date,
         required: true
     },
     maximumNumberOfHours: {

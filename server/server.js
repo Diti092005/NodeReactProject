@@ -13,8 +13,14 @@ const app = express()
 app.use(cors(corsOptions))
 app.use(express.json())
 
-//routers
-//app.use("/api/auth", require("./routers/authRoutes"))
+//routres
+app.use("/api/auth",require("./routers/authRoutes"))
+app.use("/api/bankDetails",require("./routers/bank_details_routes"))
+app.use("/api/contribution",require("./routers/contribution_routes"))
+app.use("/api/cashRegisterStatus", require("./routers/cashRegisterStatusRoutes"))
+app.use("/api/monthlyScholarshipDetails",require("./routers/monthlyScholarshipDetailsRoutes"))
+app.use("/api/studentScholarship",require("./routers/studentScholarshipRoutes"))
+app.use("/api/user",require("./routers/userRoutes"))
 
 app.get("/", (req, res) => {
     res.send("This is the home page")

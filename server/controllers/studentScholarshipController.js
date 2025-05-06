@@ -1,4 +1,4 @@
-const StudentScholarship = require("../models/Student_Scholarship")
+const StudentScholarship = require("../models/StudentScholarship")
 const User = require("../models/User")
 const getAllStudentScholarships = async (req, res) => {//vvvvvvvvvvvv
     const studentScholarships = await StudentScholarship.find().lean()
