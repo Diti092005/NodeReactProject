@@ -16,20 +16,17 @@ export default function Students() {
     const getDonors = async () => {
         const res = await axios.get("http://localhost:1111/api/user/donor")
         setDonors(res.data)
-
     }
     useEffect(() => {
         getDonors();
-    }, []); 
+    }, []);
 
 
 
     const onRowEditComplete = (e) => {
         let _donors = [...donors];
         let { newData, index } = e;
-
         _donors[index] = newData;
-
         setDonors(_donors);
     };
 
@@ -39,7 +36,6 @@ export default function Students() {
 
 
     const dateEditor = (options) => {
-
         return (<div className="card flex justify-content-center">//
             <Calendar value={options.value}  //dateFormat="dd/mm/yy" 
                 onChange={(e) => options.editorCallback(e.value.toLocaleDateString())} />
@@ -59,14 +55,13 @@ export default function Students() {
                 onChange={(e) => options.editorCallback(e.value)}
                 placeholder="Select a Role"
                 itemTemplate={(option) => {
-                    return <Tag value={option}
-                    ></Tag>;
+                    return <Tag value={option}></Tag>;
                 }}
             />
         );
     };
 
-    
+
     const roleBodyTemplate = (rowData) => {
         return <Tag value={rowData.roles} ></Tag>;
     };
@@ -77,12 +72,13 @@ export default function Students() {
     const allowEdit = (rowData) => {
         return rowData.name !== 'Blue Band';
     };
-     // פונקציית מחיקה
-     const handleDelete = async(rowData) => {
+    // פונקציית מחיקה
+    const handleDelete = async (rowData) => {
         if (window.confirm(`Are you sure you want to delete ${rowData.fullname}?`)) {
-        const res = await axios.delete(`http://localhost:1111/api/user/${ rowData._id}`)
-        console.log(res);
-        getStudents();}
+            const res = await axios.delete(`http://localhost:1111/api/user/${rowData._id}`)
+            console.log(res);
+            getDonors();
+        }
         // עדכון ה-state
     };
 
@@ -108,20 +104,17 @@ export default function Students() {
                 <Column field="address" header="Address" editor={(options) => textEditor(options)} style={{ width: '10%' }}></Column>
                 <Column field="birthDate" header="BirthDate" editor={(options) => dateEditor(options)} style={{ width: '30%' }}></Column>
                 <Column field="roles" header="Role" body={roleBodyTemplate} editor={(options) => roleEditor(options)} style={{ width: '10%' }}></Column>
-
-                
                 <Column rowEditor={allowEdit} headerStyle={{ width: '10%', minWidth: '8rem' }} bodyStyle={{ textAlign: 'center' }}></Column>
                 <Column
-                body={deleteButtonTemplate}
-                header="Delete"
-                style={{ textAlign: 'center', width: '10%' }}
-            ></Column>
+                    body={deleteButtonTemplate}
+                    header="Delete"
+                    style={{ textAlign: 'center', width: '10%' }}
+                ></Column>
             </DataTable>
             <div className="flex justify-content-right mb-4">
                 <p>
                     <Button icon="pi pi-users" rounded severity="primary" aria-label="User"
-                        onClick={() => { setActiveComponenentAdd(true) }}>    Add Students</Button></p></div>
-
+                        onClick={() => { setActiveComponenentAdd(true) }}> Add Students</Button></p></div>
         </div>
     );
 }

@@ -1,7 +1,7 @@
 import { Menubar } from 'primereact/menubar';
 import { useNavigate } from 'react-router-dom';
-const StudentNav=()=>{
-    const navigate=useNavigate()
+const StudentNav = () => {
+    const navigate = useNavigate()
     const items = [
         {
             label: 'Home',
@@ -31,11 +31,10 @@ const StudentNav=()=>{
                 navigate('./students')
             }
         }
-        
-        ]
-    return(
+    ]
+    return (
         <>
-         <Menubar  model={items} />
+            <Menubar model={items} />
         </>
     )
 }

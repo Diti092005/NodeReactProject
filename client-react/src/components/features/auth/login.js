@@ -21,20 +21,19 @@ export default function Login() {
     const login = async () => {
         try {
             const res = await axios.post('http://localhost:1111/api/auth/login', { userId: userName, password: password });
-            console.log(res.data.accessToken);
-
-            console.log(res.data);
             dispatch(setUser(res.data.user));
             dispatch(setRole(res.data.role));
             dispatch(setToken(res.data.accessToken));
-            if(res.status==200){
+            if(res.status===200){
                 navigate('./home')
-               
-
             }
-            // if(res.data.userInfo.roles.find((e)=>{return e==="Admin"})){
+            // if(res.data.role.find((e)=>{return e==="Admin"})){
             //     navigate('./user'); //
             // }
+
+            if (res.data.role.includes("Admin")) {
+                navigate('./user'); //
+            }
             // if(res.data.userInfo.roles.find((e)=>{return e==="Student"})){
             //     navigate('./student'); 
             // }
@@ -54,7 +53,7 @@ export default function Login() {
             <div className=" flex-column md:flex-row">
                 <div style={{ marginBottom: 100 }} className="w-full md:w-full flex flex-column align-items-center justify-content-center gap-3 py-5">
                     <div style={{ marginBottom: 20 }} className="flex flex-wrap justify-content-center align-items-center gap-2">
-                        <label className="w-6rem">Username</label>
+                        <label className="w-6rem">UserId</label>
                         <InputText onChange={(e) => setUserName(e.target.value)} id="username" type="text" className="w-12rem" />
                     </div>
                     <div style={{ marginBottom: 20 }} className="flex flex-wrap justify-content-center align-items-center gap-2">

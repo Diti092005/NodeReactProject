@@ -14,9 +14,9 @@ const Contributions = () => {
    
     const getAllContributions = async () => {
         const res = await axios.get('http://localhost:1111/contribution')
-        // const sortedItems = res.data.sort((a, b) => a.id - b.id);
-        // setUsers(sortedItems)
-        setContributions(res)
+        // // const sortedItems = res.data.sort((a, b) => a.id - b.id);
+        // // setUsers(sortedItems)
+        // setContributions(res)
     }
     useEffect(() => {
         getAllContributions()
@@ -44,7 +44,7 @@ const Contributions = () => {
         return (
             <div className="flex align-items-center gap-2">
                 {/* <Button icon="pi pi-trash" onClick={()=>deleteUser(rowData)} className="p-button-rounded" /> to change!!!!!!!!!!!!!!!*/}
-
+                <Button icon="pi pi-trash" onClick={() => deleteContribution(rowData)} className="p-button-rounded" />
                 </div>
         )
     }
@@ -64,12 +64,12 @@ const Contributions = () => {
         {/* //</></div> */}
 
         <div className="card">
-            <DataTable value={contributions} tableStyle={{ minWidth: '50rem' }}>
+            <DataTable value={contributions}  tableStyle={{ minWidth: '50rem' }}>
             <Column field="donor" header="Donor"></Column>
                 <Column field="date" header="Date"></Column>
                 <Column field="sumContribution" header="Contribution Sum"></Column>
                 
-               <Column header="DELETE" body={deleteButton}></Column> 
+               <Column header="DELETE" body={deleteButton()}></Column> 
                 <Column header="UPDATE" body={updateButton}></Column>
 
             </DataTable>
