@@ -18,6 +18,13 @@ const Nav=()=>{
             }
         },
         {
+            label: 'Cash Register Status',
+            icon: 'pi pi-bars',
+            command: () => {
+                navigate('./cashregisterstatus')
+            }
+        },
+        {
             label: 'Login',
             icon: 'pi pi-check',
             command: () => {

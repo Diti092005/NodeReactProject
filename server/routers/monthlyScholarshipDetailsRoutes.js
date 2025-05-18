@@ -1,7 +1,7 @@
 const express=require("express")
 const router=express.Router()
 const msdController=require("../controllers/monthlyScholarshipDetailsController")
-const verifyJWTAdmin = require("../middleware/verifyJWTAdmin")
+const verifyJWTAdmin=require("../middleware/verifyJWT_admin")
 
 router.post("/",verifyJWTAdmin,msdController.addMonthlyScholarshipDetails)
 router.get("/",verifyJWTAdmin,msdController.getAllMonthlyScholarshipDetails)

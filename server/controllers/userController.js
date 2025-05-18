@@ -1,15 +1,31 @@
 const User = require("../models/User")
 
-const getAllUsers = async (req, res) => {
+const getAllUsers = async (req, res) => {//vvvvvvvvvvv
     const users = await User.find().lean()
+    if (!users?.length) {
+         res.json([])
+        }
+
     res.json(users)
 }
+const getAllStudents = async (req, res) => {//vvvvvvvvvvv
+    const students = await User.find({role:"Student"}).lean()
+    if (!students?.length) {
+        res.json([])    }
+    res.json(students)
+}
+const getAllDonors = async (req, res) => {//vvvvvvvvvvvvvvvvvv
+    const donors = await User.find({role:"Donor"}).lean()
+    
+    res.json(donors)
+}
 
-const getUserById = async (req, res) => {
+
+const getUserById = async (req, res) => {//vvvvvvvvvvvvvvv
     const { id } = req.params
     const users = await User.find().lean()
     if (!users)
-        return res.status(400).send("No users exists")
+        return res.status(404).send("No users exists")
     if (!id)
         return res.status(400).send("Id is required")
     const user = await User.findById(id).lean()
@@ -22,19 +38,26 @@ const getUserById = async (req, res) => {
 //     const user={}
 // }
 
-const updateUser = async (req, res) => {
-    const { userId, password, fullname, email, phone, street, numOfBulding, city, dateOfBirth, roles, id } = req.body
+const updateUser = async (req, res) => {////vvvvvvvvvvvvv
+    const { userId, password, fullname, email, phone, street, numOfBulding, city, dateOfBirth, role, id } = req.body
     if (!id)
         return res.status(400).send("Id is required")
     const users = await User.find().lean()
     if (!users?.length) {
-        return res.status(400).json({ message: 'No users found' })
+        return res.status(404).json({ message: 'No users found' })
     }
     const user = await User.findById(id).exec()
+
     if (!user)
         return res.status(400).send("user is not exists")
-    if (userId)
+    if (userId) {
+        
+        const existingUser = await User.findOne({ userId });
+        if (existingUser && user.userId!=userId) {
+            return res.status(400).send("User with same userId already exists");
+        }
         user.userId = userId
+    }
     if (password)
         user.password = password
     if (fullname)
@@ -51,22 +74,23 @@ const updateUser = async (req, res) => {
         user.numOfBulding = numOfBulding
     if (dateOfBirth)
         user.dateOfBirth = dateOfBirth
-    if (roles) {
-        if (roles !== 'Donor' && roles !== 'Admin' && roles !== 'Student')//=====================================
+    if (role) {
+        if (role !== 'Donor' && role !== 'Admin' && role !== 'Student')
             return res.status(400).send("roles must be User or Donor or Admin!!")
-        user.roles = roles
+        user.role = role
+
     }
     const upuser = await user.save()
     res.json(upuser)
 }
 
-const deleteUserById = async (req, res) => {
+const deleteUserById = async (req, res) => {//vvvvvvvvvvvvvvv
     const { id } = req.params
     if (!id)
         return res.status(400).send("Id is required")
     const users = await User.find().lean()
     if (!users?.length) {
-        return res.status(400).json({ message: 'No users found' })
+        return res.status(404).json({ message: 'No users found' })
     }
     const user = await User.findById(id).exec()
     if (!user)
@@ -75,4 +99,4 @@ const deleteUserById = async (req, res) => {
     res.send(result)
 }
 
-module.exports = { getAllUsers, getUserById, updateUser, deleteUserById }
+module.exports = { getAllUsers, getUserById, updateUser, deleteUserById,getAllDonors,getAllStudents }

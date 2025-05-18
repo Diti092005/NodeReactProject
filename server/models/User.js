@@ -30,23 +30,22 @@ const userSchema = new mongoose.Schema({
             type: String
         },
         city: {
-            type: String,
-            default:"Rechovot"
+            type: String
         } 
     },
-    dateOfBirth: {
+    birthDate: {
         type: Date
-    },
-    roles: {
+    }, 
+    role: {
         type: String,
         enum: ['Student', 'Admin','Donor'],
         default: "Student",
         required:true
     },
     active:{
-        type: Boolean,
-        default: true,
-        }
+        type:Boolean,
+        default:true
+    }
 }, { timestamps: true })
 
 module.exports = mongoose.model("User", userSchema)

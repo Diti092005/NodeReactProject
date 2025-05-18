@@ -13,10 +13,10 @@ const Contributions = () => {
     const [contributions, setContributions] = useState([])
    
     const getAllContributions = async () => {
-        const res = await axios.get('http://localhost:1111/contribution')
+        const res = await axios.get('http://localhost:1111/api/contribution')
         // // const sortedItems = res.data.sort((a, b) => a.id - b.id);
         // // setUsers(sortedItems)
-        // setContributions(res)
+        setContributions(res.data)
     }
     useEffect(() => {
         getAllContributions()
@@ -24,10 +24,9 @@ const Contributions = () => {
 
     const deleteContribution = async (rowData) => {
         console.log(rowData)
-      
       console.log(rowData._id)
-        const res = await axios.delete(`http://localhost:1111/contribution/${rowData._id}`)
-        setContributions(res.data)
+        const res = await axios.delete(`http://localhost:1111/api/contribution/${rowData._id}`)
+        getAllContributions()
     }
 
     const updateButton = (rowData) => {

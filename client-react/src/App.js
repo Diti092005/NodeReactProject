@@ -12,6 +12,9 @@ import StudentNav from './components/header/StudentNav';
 import Home from './components/body/Home';
 import ShowMSDetails from './components/body/msDetails/ShowMSDetails';
 import User from './components/body/users/User';
+import CRStatus from './components/body/crStatus/CRStatus';
+import CreateContribution from './components/body/contributions/CreateContribution';
+import PaymentPage from './components/body/contributions/PaymentPage';
 function App() {
   const { token, role, user } = useSelector((state) => state.token);
 
@@ -22,12 +25,13 @@ function App() {
         <Route path='/' element={<Login></Login>} /> 
          <Route path='/login' element={<Login></Login>} />
         <Route path='/logOut' element={<LogOut></LogOut>} />
-        {/* <Route path='/students' element={<Students></Students>} /> */}
-        <Route path='/contribution' element={<Contributions></Contributions>} />
+        <Route path='/students' element={<Students></Students>} />
+        <Route path='/cashregisterstatus' element={<CRStatus/>} />
+        <Route path='/contribution' element={<CreateContribution/>} />
         <Route path='/home' element={<Home></Home>}/>
         <Route path='/user' element={<User></User>}/>
+        <Route path='/paymentPage' element={<PaymentPage></PaymentPage>}/>
         <Route path='/showMSDetails' element={<ShowMSDetails></ShowMSDetails>}/>
-        
       </Routes>
     </div>
   );

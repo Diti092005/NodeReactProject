@@ -1,59 +1,128 @@
-import { Button } from "primereact/button";
-import { Dialog } from "primereact/dialog";
-import { useState } from "react";
-import { InputText } from "primereact/inputtext";
-import React from "react";
+import React, { useState } from 'react';
+import { InputText } from 'primereact/inputtext';
+import { Dropdown } from 'primereact/dropdown';
+// import { Calendar } from 'primereact/calendar';
+import { InputTextarea } from 'primereact/inputtextarea';
+import { Button } from 'primereact/button';
+import 'primereact/resources/themes/saga-blue/theme.css'; // Theme
+import 'primereact/resources/primereact.min.css'; // PrimeReact components
+import 'primeicons/primeicons.css'; // PrimeReact icons
+import 'primeflex/primeflex.css'; // Responsive design
 import axios from "axios";
+import { useDispatch, useSelector } from 'react-redux';
+import { useNavigate } from 'react-router-dom';
+import PaymentPage from './PaymentPage';
 
-const CreateContribution = (props) => {//{setUsers}
+const CreateContribution = (props) => {
+    const { token, role, user } = useSelector((state) => state.token);
     const [visible, setVisible] = useState(false);
-    const [donor, setDonor] = useState();
-    const [sumContribution, setSumContribution] = useState();
-    const [date, setDate] = useState();
-   
+    const navigate = useNavigate();
+    const [formData, setFormData] = useState({
+        sumContribution: 100,
+        date: null,
+        donor: null,
+    });
 
-    const SaveContribution = async (e) => {
-       const res = await axios.post('http://localhost:1111/contribution', { donor, date, sumContribution })
-       props.getAllContributions()//////////////////////////
-        // setUsers(res.data)
-    }
-    return (<>
-        <div className="card flex justify-content-start">
-            <Button label="Add new cont" icon="pi pi-plus" onClick={() => setVisible(true)} />
-            <Dialog
-                visible={visible}
-                modal
-                onHide={() => { if (!visible) return; setVisible(false); }}
-                content={({ hide }) => (
-                    <div className="flex flex-column px-8 py-5 gap-4" style={{ borderRadius: '12px', backgroundImage: 'radial-gradient(circle at left top, var(--primary-400), var(--primary-700))' }}>
-                        <div className="inline-flex flex-column gap-2">
-                            <label htmlFor="donor" className="text-primary-50 font-semibold">
-                                Donor
-                            </label>
-                            <InputText onChange={(e) => { setDonor(e.target.value) }} className="bg-white-alpha-20 border-none p-3 text-primary-50" style={{ required: true }} />
+    const coinOptions = [
+        { label: '$', value: '$' },
+        { label: '₪', value: '₪' },
+    ];
 
-                        </div>
-                        <div className="inline-flex flex-column gap-2">
-                            <label htmlFor="sumContribution" className="text-primary-50 font-semibold">
-                            Contribution Sum
-                            </label>
-                            <InputText onChange={(e) => { setSumContribution(e.target.value) }} className="bg-white-alpha-20 border-none p-3 text-primary-50" style={{ required: true }} />
-                        </div>
-                        <div className="inline-flex flex-column gap-2">
-                            <label htmlFor="date" className="text-primary-50 font-semibold">
-                                date
-                            </label>
-                            <InputText onChange={(e) => { setDate(e.target.value) }} className="bg-white-alpha-20 border-none p-3 text-primary-50" style={{ required: true }} />
-                        </div>
-                      
-                        <div className="flex align-items-center gap-2">
-                            {/* <Button label="Save" icon="pi pi-check" onClick={(e) => { SaveTodo(e); hide(e) }} text className="p-3 w-full text-primary-50 border-1 border-white-alpha-30 hover:bg-white-alpha-20"></Button> */}
-                            <Button label="Cancel" icon="pi pi-times" onClick={(e) => hide(e)} text className="p-3 w-full text-primary-50 border-1 border-white-alpha-30 hover:bg-white-alpha-10"></Button>
-                        </div>
-                    </div>
-                )}
-            ></Dialog>
-        </div>
-    </>)
-}
-export default CreateContribution
+    // const dayOptions = [
+    //     { label: '15', value: 15 },
+    //     { label: '14', value: 14 },
+    // ];
+
+    const eventOptions = [
+        { label: 'Pesach', value: 'Pesach' },
+        { label: 'Shavuot', value: 'Shavuot' },
+        { label: 'RoshHshna', value: 'RoshHshna' },
+        { label: 'Sukut', value: 'Sukut' },
+        { label: 'Porim', value: 'Porim' },
+        { label: 'General', value: 'General' },
+    ];
+
+    const handleChange = (e, fieldName) => {
+        setFormData({ ...formData, [fieldName]: e.target.value });
+    };
+
+    const handleSubmit = async (e) => {
+        e.preventDefault();
+        formData.donor = user._id;
+        formData.date = new Date();
+        await axios.post("http://localhost:1111/api/contribution", formData,
+            { headers: { Authorization: `Bearer ${token}` } });
+        <PaymentPage visible={visible} setVisible={setVisible}sumContribution={formData.sumContribution} />
+    };
+
+    // Logic for saving data to the server can be added here
+    return (
+        <>
+        <div className="card flex justify-content-center">
+            <div className="p-fluid">
+                <h2>Enter donation details</h2>
+                <div className="field">
+                    <label htmlFor="sumContribution">Sum Contribution</label>
+                    <InputText
+                        id="sumContribution"
+                        value={formData.sumContribution}
+                        onChange={(e) => handleChange(e, 'donationAmount')}
+                        type="number"
+                        required
+                    />
+                </div>
+
+                {/* <div className="field">
+                    <label htmlFor="donationDate">Donation Date</label>
+                    <Calendar
+                        id="donationDate"
+                        value={formData.donationDate}
+                        onChange={(e) => handleChange(e, 'donationDate')}
+                        dateFormat="dd/mm/yy"
+                        showIcon
+                    />
+                </div> */}
+
+                <div className="field">
+                    <label htmlFor="coinType">Currency Type</label>
+                    <Dropdown
+                        id="coinType"
+                        value={formData.coinType}
+                        onChange={(e) => handleChange(e, 'coinType')}
+                        options={coinOptions}
+                        placeholder="Select currency type"
+                    />
+                </div>
+
+                {/* <div className="field">
+                    <label htmlFor="Day">Day</label>
+                    <Dropdown
+                        id="Day"
+                        value={formData.Day}
+                        onChange={(e) => handleChange(e, 'Day')}
+                        options={dayOptions}
+                        placeholder="Select day"
+                    />
+                </div> */}
+
+                {/* <div className="field">
+                    <label htmlFor="donorUserName">Donor Username</label>
+                    <InputText
+                        id="donorUserName"
+                        value={formData.donorUserName}
+                        onChange={(e) => handleChange(e, 'donorUserName')}
+                        required
+                    />
+                </div> */}
+                <Button
+                    label="Submit"
+                    icon="pi pi-check"
+                    className="p-button-success"
+                    onClick={handleSubmit}
+                />
+            </div></div>
+        </>
+    );
+};
+
+export default CreateContribution;

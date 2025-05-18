@@ -81,7 +81,7 @@ const FormMSDetails = (props) => {
             <form onSubmit={handleSubmit(onSubmit)}></form>
             <div className="flex justify-content-center">
                 <div className="card">
-                    <h5 className="text-center">Update MSDetails</h5>
+                    <h5 className="text-center">Form MSDetails</h5>
                     <form onSubmit={handleSubmit(onSubmit)} className="p-fluid">
                         <div className="field">
                             <div className="inline-flex flex-column gap-2">

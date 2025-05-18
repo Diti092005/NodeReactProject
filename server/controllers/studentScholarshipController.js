@@ -1,10 +1,9 @@
-const StudentScholarship = require("../models/StudentScholarship")
+const StudentScholarship = require("../models/Student_Scholarship")
 const User = require("../models/User")
 const getAllStudentScholarships = async (req, res) => {//vvvvvvvvvvvv
     const studentScholarships = await StudentScholarship.find().lean()
     if (!studentScholarships?.length) {
-        return res.status(400).json({ message: 'No cashregistersatus found' })
-    }
+        res.json([])    }
     res.json(studentScholarships)
 }
 
@@ -12,7 +11,7 @@ const getStudentScholarshipById = async (req, res) => {//vvvvvvvvvvv
     const { id } = req.params
     const studentScholarships = await StudentScholarship.find().lean()
     if (!studentScholarships?.length)
-        return res.status(400).send("No studentScholarships exists")
+        return res.status(404).send("No studentScholarships exists")
     if (!id)
         return res.status(400).send("Id is required")
     const studentScholarship = await StudentScholarship.findById(id).lean()
@@ -37,11 +36,12 @@ const updateStudentScholarship = async (req, res) => {//vvvvvvvvvvvvvvvv
     console.log("klop;juojop");
     const allStudentScholarship=await StudentScholarship.find()
     if(!allStudentScholarship)
-        return res.status(400).send(" There is no studentScholarships !!")
+        return res.status(404).send(" There is no studentScholarships !!")
 
     const studentScholarship = await StudentScholarship.findById(id).exec()
     if (!studentScholarship)
         return res.status(400).send("studentScholarship is not exist!!")
+    
     if (sumMoney)
         studentScholarship.sumMoney = sumMoney
     if (numHours)
@@ -51,7 +51,7 @@ const updateStudentScholarship = async (req, res) => {//vvvvvvvvvvvvvvvv
     if (student) {
         const users = await User.find().lean()
         if (!users?.length) {
-            return res.status(400).json({ message: 'No users found' })
+            return res.status(404).json({ message: 'No users found' })
         }
         const user = await User.findById(id).exec()
         if (!user)
