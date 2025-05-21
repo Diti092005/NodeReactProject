@@ -1,3 +1,4 @@
+const { default: mongoose } = require("mongoose");
 const MonthlyScholarshipDetails=require("../models/Monthly_scholarship_details")
 
 const addMonthlyScholarshipDetails=async(req,res)=>{//vvvvvvvvvv
@@ -20,6 +21,8 @@ const getMonthlyScholarshipDetailsById=async (req,res)=>{//vvvvvvvvvvvvvvv
     const {id}=req.params
     if(!id)
         return res.status(400).send("Id is required")
+    if (!mongoose.Types.ObjectId.isValid(id))
+        return res.status(400).send("Not valid id")
     const allMonthlyScholarshipDetails= await MonthlyScholarshipDetails.find().lean()
     if(!allMonthlyScholarshipDetails?.length)
         return res.status(404).send("No monthlyScholarshipDetails exists")
@@ -28,11 +31,29 @@ const getMonthlyScholarshipDetailsById=async (req,res)=>{//vvvvvvvvvvvvvvv
         return res.status(400).send("monthlyScholarshipDetails is not exists")
     res.json(monthlyScholarshipDetails)
 }
+const getMonthlyScholarshipDetailsDate=async (req,res)=>{//vvvvvvvvvvvvvvv
+    const startOfMonth = new Date();
+        startOfMonth.setDate(1); // Set to the first day of the current month
+        const endOfMonth = new Date();
+        endOfMonth.setMonth(endOfMonth.getMonth() + 1); // Set to the first day of the next month
+        endOfMonth.setDate(0); // Set to the last day of the current month
+        const monthlyScholarshipDetails = await MonthlyScholarshipDetails.findOne({
+            date: {
+                $gte: startOfMonth,
+                $lt: endOfMonth
+            }
+        }).lean();
+    if(!monthlyScholarshipDetails)
+        return res.status(200).send("")
+    res.json(monthlyScholarshipDetails)
+}
 
 const updateMonthlyScholarshipDetails=async(req,res)=>{//vvvvvvvvvvvvvvvvv
     const {_id,sumPerHour,MaximumNumberOfHours,date}=req.body
     if(!_id)
         return res.status(400).send("Id is required")
+    if (!mongoose.Types.ObjectId.isValid(_id))
+        return res.status(400).send("Not valid id")
     const monthlyScholarshipDetails=await MonthlyScholarshipDetails.findById(_id).exec()
     if(!monthlyScholarshipDetails)
         return res.status(400).send("monthlyScholarshipDetails is not exists")
@@ -45,10 +66,13 @@ const updateMonthlyScholarshipDetails=async(req,res)=>{//vvvvvvvvvvvvvvvvv
     const updatedmonthlyScholarshipDetails= await monthlyScholarshipDetails.save()
     res.json(updatedmonthlyScholarshipDetails)
 }
+
 const deleteMonthlyScholarshipDetails = async (req, res) => {//vvvvvvvvvv
     const { id } = req.params
     if (!id)
         return res.status(400).send("Id is required")
+    if (!mongoose.Types.ObjectId.isValid(id))
+        return res.status(400).send("Not valid id")
     const msd = await MonthlyScholarshipDetails.findById(id).exec()
     if (!msd)
         return res.status(400).send("MonthlyScholarshipDetails is not exists")
@@ -56,4 +80,4 @@ const deleteMonthlyScholarshipDetails = async (req, res) => {//vvvvvvvvvv
     res.send(result)
 }
 
-module.exports={addMonthlyScholarshipDetails,getMonthlyScholarshipDetailsById,getAllMonthlyScholarshipDetails,updateMonthlyScholarshipDetails,deleteMonthlyScholarshipDetails}
+module.exports={addMonthlyScholarshipDetails,getMonthlyScholarshipDetailsDate,getMonthlyScholarshipDetailsById,getAllMonthlyScholarshipDetails,updateMonthlyScholarshipDetails,deleteMonthlyScholarshipDetails}

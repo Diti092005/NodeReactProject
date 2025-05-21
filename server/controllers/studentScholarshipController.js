@@ -1,47 +1,80 @@
+const { default: mongoose } = require("mongoose")
 const StudentScholarship = require("../models/Student_Scholarship")
 const User = require("../models/User")
 const getAllStudentScholarships = async (req, res) => {//vvvvvvvvvvvv
-    const studentScholarships = await StudentScholarship.find().lean()
+    const studentScholarships = await StudentScholarship.find().populate("student", { fullname: 1, _id: 1 }).lean();
     if (!studentScholarships?.length) {
-        res.json([])    }
+        res.json([])
+    }
     res.json(studentScholarships)
 }
 
-const getStudentScholarshipById = async (req, res) => {//vvvvvvvvvvv
-    const { id } = req.params
-    const studentScholarships = await StudentScholarship.find().lean()
-    if (!studentScholarships?.length)
-        return res.status(404).send("No studentScholarships exists")
+const getStudentScholarshipById = async (req, res) => {
+    const { id } = req.params;
     if (!id)
-        return res.status(400).send("Id is required")
-    const studentScholarship = await StudentScholarship.findById(id).lean()
+        return res.status(400).send("Id is required");
+    if (!mongoose.Types.ObjectId.isValid(id))
+        return res.status(400).send("Not valid id");
+    const studentScholarship = await StudentScholarship.findById(id)
+        .populate("student", { fullname: 1, _id: 1 })
+        .lean();
     if (!studentScholarship)
-        return res.status(400).send("This studentScholarship isn't exists")
-    res.json(studentScholarship)
-}
+        return res.status(404).send("This studentScholarship doesn't exist");
+    res.json(studentScholarship);
+};
 
 const addStudentScholarship = async (req, res) => {//vvvvvvvvvvvvvv
     const { sumMoney, numHours, date, student } = req.body
     if (!sumMoney || !numHours || !date || !student)
         return res.status(400).send("All fields are required!!")
-    
-    const studentScholarship = await StudentScholarship.create({ sumMoney, numHours, date,student })
+    const studentScholarship = await StudentScholarship.create({ sumMoney, numHours, date, student })
     res.json(studentScholarship)
+}
+const addStudentScholarshipOnceAMonth = async (req, res) => {//
+    const students = await User.find({ role: "Student" }).lean()
+    if (!students?.length)
+        return res.status(404).send("No students found")
+    const startOfMonth = new Date();
+        startOfMonth.setDate(1); // Set to the first day of the current month
+        const endOfMonth = new Date();
+        endOfMonth.setMonth(endOfMonth.getMonth() + 1); // Set to the first day of the next month
+        endOfMonth.setDate(0); // Set to the last day of the current month
+        const moneyForHour = await monthlyScholarshipDetailsSchema.findOne({
+            date: {
+                $gte: startOfMonth,
+                $lt: endOfMonth
+            }
+        }).lean().then(doc => doc?.sumMoney);
+        if (!moneyForHour)
+            return res.status(404).send("No money found")
+    for (const student of students) {
+        const studentScholarship = await StudentScholarship.findOne({
+            student: student._id, date: {
+                $gte: startOfMonth,
+                $lt: endOfMonth
+            }
+        }).exec()
+        if (studentScholarship && studentScholarship.numHours) {
+            studentScholarship.sumMoney = moneyForHour * studentScholarship.numHours
+            await studentScholarship.save()
+        }
+    }
+    const studentScholarships=await StudentScholarship.find().lean()
+    res.json(studentScholarships)
 }
 
 const updateStudentScholarship = async (req, res) => {//vvvvvvvvvvvvvvvv
     const { sumMoney, numHours, date, student, id } = req.body
     if (!id)
         return res.status(400).send("Id is required")
-    console.log("klop;juojop");
-    const allStudentScholarship=await StudentScholarship.find()
-    if(!allStudentScholarship)
+    if (!mongoose.Types.ObjectId.isValid(id))
+        return res.status(400).send("Not valid id")
+    const allStudentScholarship = await StudentScholarship.find()
+    if (!allStudentScholarship)
         return res.status(404).send(" There is no studentScholarships !!")
-
     const studentScholarship = await StudentScholarship.findById(id).exec()
     if (!studentScholarship)
         return res.status(400).send("studentScholarship is not exist!!")
-    
     if (sumMoney)
         studentScholarship.sumMoney = sumMoney
     if (numHours)
@@ -56,19 +89,44 @@ const updateStudentScholarship = async (req, res) => {//vvvvvvvvvvvvvvvv
         const user = await User.findById(id).exec()
         if (!user)
             return res.status(400).send("user is not exists")
-        studentScholarship.student=student
+        studentScholarship.student = student
     }
-    const updatedStudentScholarship=await studentScholarship.save()
+    const updatedStudentScholarship = await studentScholarship.save()
     res.json(updatedStudentScholarship)
 }
-const deleteStudentScholarship=async(req,res)=>{//vvvvvvvvvvvvvvvvvvvv
-    const {id}=req.params
-    if(!id)
+const deleteStudentScholarship = async (req, res) => {
+    const { id } = req.params
+    if (!id)
         return res.status(400).send("Id is required")
-    const studentScholarship=await StudentScholarship.findById(id).exec()
-    if(!studentScholarship)
+    if (!mongoose.Types.ObjectId.isValid(id))
+        return res.status(400).send("Not valid id")
+    const studentScholarship = await StudentScholarship.findById(id).exec()
+    if (!studentScholarship)
         return res.status(400).send("studentScholarship is not exists")
-    const result=await studentScholarship.deleteOne()
+    const result = await studentScholarship.deleteOne()
     res.send(result)
 }
-module.exports={addStudentScholarship,getAllStudentScholarships,getStudentScholarshipById,updateStudentScholarship,deleteStudentScholarship}
+const getCurrentScholarships = async (req, res) => {
+    try {
+        const { date } = req.params; // studentId מגיע מה-URL
+        // חישוב תחילת וסוף החודש הנוכחי
+        const now = new Date();
+        const startOfMonth = new Date(now.getFullYear(), now.getMonth(), 1);
+        const endOfMonth = new Date(now.getFullYear(), now.getMonth() + 1, 0, 23, 59, 59, 999);
+
+        // חיפוש המילגה של הסטודנט בחודש הנוכחי
+        const scholarship = await StudentScholarship.findOne({
+            date: date,
+            date: { $gte: startOfMonth, $lte: endOfMonth }
+        });
+
+        if (!scholarship) {
+            return res.status(200).json("");
+        }
+
+        res.json(scholarship);
+    } catch (err) {
+        res.status(500).json({ message: "שגיאה בשרת", error: err.message });
+    }
+};
+module.exports = { addStudentScholarship,addStudentScholarshipOnceAMonth, getAllStudentScholarships, getStudentScholarshipById, getCurrentScholarships,updateStudentScholarship, deleteStudentScholarship }

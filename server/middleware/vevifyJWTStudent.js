@@ -12,8 +12,6 @@ const verifyJWTStudent=(req,res,next)=>{
             if (err||decode.role!=="Admin"||decode.role!=="Student")
                  return res.status(403).json({ message:'Forbidden' })
             req.user=decode
-            console.log(req.user);
-
             next()    
         }
     )

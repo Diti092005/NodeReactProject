@@ -5,6 +5,8 @@ const verifyJWTAdmin=require("../middleware/verifyJWT_admin")
 
 router.post("/",verifyJWTAdmin,msdController.addMonthlyScholarshipDetails)
 router.get("/",verifyJWTAdmin,msdController.getAllMonthlyScholarshipDetails)
+
+router.get("/thisMonth",verifyJWTAdmin,msdController.getMonthlyScholarshipDetailsDate)
 router.get("/:id",verifyJWTAdmin,msdController.getMonthlyScholarshipDetailsById)
 router.put("/",verifyJWTAdmin,msdController.updateMonthlyScholarshipDetails)
 router.delete("/:id",verifyJWTAdmin,msdController.deleteMonthlyScholarshipDetails)

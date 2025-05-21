@@ -1,25 +1,35 @@
 //vvvvvvvvvvvvv
-const Contribution=require("../models/Contribution")
-const User=require("../models/User")
-const addContrbution=async(req,res)=>{///////////vvvvvvvvv
-    const {donor,date,sumContribution}=req.body
-    console.log(donor,date,sumContribution);
-    
-    if(!donor||!date||!sumContribution)
+const { default: mongoose } = require("mongoose");
+const Contribution = require("../models/Contribution")
+const User = require("../models/User")
+const addContrbution = async (req, res) => {///////////vvvvvvvvv
+    const { donor, date, sumContribution } = req.body
+    if (!donor || !date || !sumContribution)
         return res.status(400).send("All fields are required ")
-    if(!Contribution.find())
-        return res.status(404).send("No Donors exist")
-
-    const existDonor = await User.findOne({_id:donor}).lean()
+    // if(!Contribution.find())
+    //     return res.status(404).send("No Donors exist")
+    const existDonor = await User.findOne({ _id: donor }).lean()
     if (!existDonor)
         return res.status(400).send("Donor is not exist")
-    const contribution = await Contribution.create({donor,date,sumContribution})
+    const contribution = await Contribution.create({ donor, date, sumContribution })
     res.json(contribution)
 }
+const addContrbutionByDonorId = async (req, res) => {///////////vvvvvvvvv
+    const { donor, date, sumContribution } = req.body
+    if (!donor || !date || !sumContribution)
+        return res.status(400).send("All fields are required ")
+    // if(!Contribution.find())
+    //     return res.status(404).send("No Donors exist")
 
+    const existDonor = await User.findOne({ _id: donor }).lean()
+    if (!existDonor)
+        return res.status(400).send("Donor is not exist")
+    const contribution = await Contribution.create({ donor, date, sumContribution })
+    res.json(contribution)
+}
 const getAllContrbutions = async (req, res) => {//vvvvvvvvvv
-    const allContrbutions = await Contribution.find().lean()
-    if(!allContrbutions?.length)
+    const allContrbutions = await Contribution.find().populate("donor", { fullname: 1, _id: 1 }).lean()
+    if (!allContrbutions?.length)
         res.json([])
     res.json(allContrbutions)
 }
@@ -29,40 +39,71 @@ const getContrbutionById = async (req, res) => {//vvvvvvvvv
     console.log(id);
     if (!id)
         return res.status(400).send("Id is required")
-    
-    const allContributions = await Contribution.find().lean()
-    if (!allContributions?.length)
-        return res.status(404).send("No contribution exists")
-    const contribution = await Contribution.findById(id).lean()
+    if (!mongoose.Types.ObjectId.isValid(id))
+        return res.status(400).send("Not valid id")
+    const contribution = await Contribution.findById(id).populate("donor", { fullname: 1, _id: 1 }).lean()
     if (!contribution)
         return res.status(400).send("contribution is not exists")
     res.json(contribution)
 }
-
-const updateContribution=async(req,res)=>{/////////vvvvvvvvvvvvvvv
-    const {id,donor,date,sumContribution}=req.body
-    if(!id)
+const getContrbutionByDonorId = async (req, res) => {//vvvvvvvvv
+    const { id } = req.params
+    console.log(id);
+    if (!id)
         return res.status(400).send("Id is required")
+    // if (!mongoose.Types.ObjectId.isValid(id))
+    //     return res.status(400).send("Not valid id")
+    const contribution = await Contribution.find({ donor: id }).populate("donor", { fullname: 1, _id: 1 }).lean()
+    if (!contribution)
+        return res.status(400).send("contribution is not exists")
+    res.json(contribution)
+}
+const updateContributionByDonorId = async (req, res) => {
+    const { id, donor, date, sumContribution } = req.body
+    if (!id)
+        return res.status(400).send("Id is required")
+    const contribution = await Contribution.findOne({ _id: id, donor: donor }).exec()
+    if (!contribution)
+        return res.status(400).send("contribution is not exists")
+    if (date)
+        contribution.date = date
+    if (sumContribution)
+        contribution.sumContribution = sumContribution
+    console.log(contribution);
+
+    const updatedContribution = await contribution.save()
+    res.json(updatedContribution)
+}
+const updateContribution = async (req, res) => {/////////vvvvvvvvvvvvvvv
+    const { id, donor, date, sumContribution } = req.body
+    if (!id)
+        return res.status(400).send("Id is required")
+    if (!mongoose.Types.ObjectId.isValid(id))
+        return res.status(400).send("Not valid id")
     const contribution = await Contribution.findById(id).exec()
     if (!contribution)
         return res.status(400).send("contribution is not exists")
-    if(donor)
-        contribution.donor=donor
-    if(date)
-        contribution.date=date
-    if(sumContribution)
-        contribution.sumContribution=sumContribution
-    const updatedContribution=await contribution.save()
+    if (donor)
+        contribution.donor = donor
+    if (date)
+        contribution.date = date
+    if (sumContribution)
+        contribution.sumContribution = sumContribution
+    const updatedContribution = await contribution.save()
     res.json(updatedContribution)
 }
 const deleteContribution = async (req, res) => {//vvvvvvvvvvvvvvvvvvvv
     const { id } = req.params
-    if (!id) 
+    if (!id)
         return res.status(400).send("Id is required")
+    if (!mongoose.Types.ObjectId.isValid(id))
+        return res.status(400).send("Not valid id")
     const contribution = await Contribution.findById(id).exec()
     if (!contribution)
         return res.status(400).send("Contribution is not exists")
+    if (contribution.date.getMonth() !== new Date().getMonth())
+        return res.status(400).send("You can't delete contribution from previous month")
     const result = await contribution.deleteOne()
     res.send(result)
 }
-module.exports={addContrbution,getAllContrbutions,getContrbutionById,updateContribution,deleteContribution}
+module.exports = { addContrbution, addContrbutionByDonorId, getAllContrbutions, getContrbutionByDonorId, getContrbutionById, updateContribution, updateContributionByDonorId, deleteContribution }

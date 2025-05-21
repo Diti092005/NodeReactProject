@@ -22,7 +22,7 @@ const FormMSDetails = (props) => {
         sumPerHour: MSDetail.sumPerHour,
     }
     const minHours = 10;
-    const maxHours = 100;
+    const maxHours = 1000;
     const minSumPerHour = 10;
     const maxSumPerHour = 100;
     useEffect(() => {
@@ -35,14 +35,16 @@ const FormMSDetails = (props) => {
     const { control, formState: { errors }, handleSubmit, reset } = useForm({ defaultValues });
 
     const onSubmit = async (data) => {
-        console.log(data._id);
+        data.date = new Date()
+
         if (data.MaximumNumberOfHours >= minHours && data.MaximumNumberOfHours <= maxHours && data.sumPerHour >= minSumPerHour && data.sumPerHour <= maxSumPerHour) {
-            if(data._id === 0) {
-            const res = await axios.post("http://localhost:1111/api/monthlyScholarshipDetails", data,
-                { headers: { Authorization: `Bearer ${token}` } })
-            setShowMessage(true);
-            setFormData(data);
-            reset();}
+            if (data._id === 0) {
+                const res = await axios.post("http://localhost:1111/api/monthlyScholarshipDetails", data,
+                    { headers: { Authorization: `Bearer ${token}` } })
+                setShowMessage(true);
+                setFormData(data);
+                reset();
+            }
             else {
                 const res = await axios.put(`http://localhost:1111/api/monthlyScholarshipDetails`, data,
                     { headers: { Authorization: `Bearer ${token}` } })
@@ -51,6 +53,7 @@ const FormMSDetails = (props) => {
                 reset();
             }
         }
+
         else {
             setShowMessageError(true)
         }
@@ -66,7 +69,7 @@ const FormMSDetails = (props) => {
     return (<>{showMessage ? <Dialog visible={showMessage} onHide={() => setShowMessage(false)} position="top" footer={dialogFooter} showHeader={false} breakpoints={{ '960px': '80vw' }} style={{ width: '30vw' }}>
         <div className="flex justify-content-center flex-column pt-6 px-3">
             <p style={{ lineHeight: 1.5, textIndent: '1rem' }}>
-            The operation was successful
+                The operation was successful
             </p>
         </div>
     </Dialog> : <></>}
@@ -87,23 +90,17 @@ const FormMSDetails = (props) => {
                             <div className="inline-flex flex-column gap-2">
                                 <label htmlFor="sumPerHour" className={classNames({ 'p-error': errors.name })}>Sum Per Hour*</label>
                                 <Controller name="sumPerHour" control={control} rules={{ required: 'setSumPerHour is required.' }} render={({ field, fieldState }) => (
-                                    <InputText type="number" id={field.name} {...field} autoFocus className={classNames({ 'p-invalid': fieldState.invalid })} />
+                                    <InputText type="number" min={minSumPerHour} max={maxSumPerHour} id={field.name} {...field} autoFocus className={classNames({ 'p-invalid': fieldState.invalid })} />
                                 )} /> {getFormErrorMessage('sumPerHour')}</div>
                         </div>
                         <div className="field">
                             <div className="inline-flex flex-column gap-2">
                                 <label htmlFor="MaximumNumberOfHours" className={classNames({ 'p-error': errors.name })}>Maximum Number Of Hours*</label>
                                 <Controller name="MaximumNumberOfHours" control={control} rules={{ required: 'setSumPerHour is required.' }} render={({ field, fieldState }) => (
-                                    <InputText type="number" id={field.name} {...field} autoFocus className={classNames({ 'p-invalid': fieldState.invalid })} />
+                                    <InputText type="number" id={field.name} {...field} min={minHours} max={maxHours} autoFocus className={classNames({ 'p-invalid': fieldState.invalid })} />
                                 )} /> {getFormErrorMessage('MaximumNumberOfHours')}</div></div>
-                        <div className="field">
-                            <div className="inline-flex flex-column gap-2">
-                                <label htmlFor="date" className={classNames({ 'p-error': errors.name })}>Date*</label>
-                                <Controller name="date" control={control} rules={{ required: 'date is required.' }} render={({ field, fieldState }) => (
-                                    <Calendar id={field.name} {...field} autoFocus className={classNames({ 'p-invalid': fieldState.invalid })} />
-                                )} /> {getFormErrorMessage('date')}</div>
-                        </div><Button type="submit" label="Submit" className="mt-2" />
-                        <Button type="button" label="Cancel" className="mt-2" onClick={()=>{props.setVisible(false)}} />
+                        <Button type="submit" label="Submit" className="mt-2" />
+                        <Button type="button" label="Cancel" className="mt-2" onClick={() => { props.setVisible(false) }} />
 
                     </form>
                 </div>

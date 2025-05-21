@@ -1,0 +1,13 @@
+/* FormDemo.css */
+.form-demo {
+    padding: 2rem;
+}
+
+.field {
+    margin-bottom: 1rem;
+}
+
+.p-error {
+    color: red;
+    font-size: 0.875rem;
+}

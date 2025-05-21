@@ -9,25 +9,61 @@ import { Calendar } from 'primereact/calendar';
 import axios from 'axios';
 import { Button } from 'primereact/button';
 import 'primeicons/primeicons.css';
+import { useSelector } from 'react-redux';
+import { Dialog } from 'primereact/dialog';
+import { Toast } from 'primereact/toast';
+import { classNames } from 'primereact/utils';
+import { useRef } from 'react';
+//import { emit } from '../../../../../server node/models/User';
+import { Toolbar } from 'primereact/toolbar';
+import { useForm, Controller } from 'react-hook-form';
+import UserForm from './userForm';
 
 export default function Students() {
-    const [donors, setDonors] = useState([]);
+
+    const [students, setStudents] = useState([]);
+    const [student, setStudent] = useState();
+    const [add, setAdd] = useState(false);
+
+    const [studentDialog, setStudentDialog] = useState(false);
+    const [submitted, setSubmitted] = useState(false);
+    const [deleteStudentDialog, setDeleteStudentDialog] = useState(false);
+    const [selectedStudents, setselectedStudents] = useState(null);
+    const [isUpdate, setIsUpdate] = useState(false)
     const [roles] = useState(['Student', 'Donor', 'Admin']);
-    const getDonors = async () => {
-        const res = await axios.get("http://localhost:1111/api/user/donor")
-        setDonors(res.data)
+    const { token, role } = useSelector((state) => state.token);
+    const toast = useRef(null);
+    const dt = useRef(null);
+    // let defaultValues = {
+    //     id: null,
+    //     fullname: student?.fullname,
+    //     phone: null,
+    //     email: '',
+    //     city: student?.address?.city || "",
+    //     street: student?.address?.street || "",
+    //     buildingNumber: student?.address?.buildingNumber || "",
+    //     birthDate: '',
+    //     roles: '',
+    //     userId: ''
+    // };
+
+    const getStudents = async () => {
+        const res = await axios.get("http://localhost:1111/api/user/student",
+            { headers: { Authorization: `Bearer ${token}` } }
+        )
+        setStudents(res.data)
     }
     useEffect(() => {
-        getDonors();
+        getStudents();
     }, []);
 
-
-
     const onRowEditComplete = (e) => {
-        let _donors = [...donors];
+        let _students = [...students];
         let { newData, index } = e;
-        _donors[index] = newData;
-        setDonors(_donors);
+
+        _students[index] = newData;
+
+        setStudents(_students);
     };
 
 
@@ -35,86 +71,137 @@ export default function Students() {
 
 
 
-    const dateEditor = (options) => {
-        return (<div className="card flex justify-content-center">//
-            <Calendar value={options.value}  //dateFormat="dd/mm/yy" 
-                onChange={(e) => options.editorCallback(e.value.toLocaleDateString())} />
-        </div>
-        )
-    };
-    const textEditor = (options) => {
-        return <InputText type="text" value={options.value} onChange={(e) => options.editorCallback(e.target.value)} />;
-    };
+    // const dateEditor = (options) => {
+    //     //const [date, setDate] = useState(options.value);
+    //     console.log(options.value);
+    //     // const dateValue = options.value ? new Date(options.value) : null;
+
+    //     return (<div className="card flex justify-content-center">//
+    //         <Calendar value={options.value}  //dateFormat="dd/mm/yy" 
+    //             onChange={(e) => options.editorCallback(e.value.toLocaleDateString())} />
+    //     </div>
+    //         //<InputText type="text" value={options.value} onChange={(e) => options.editorCallback(e.target.value)} />;
+    //     )
+    // };
+    // const textEditor = (options) => {
+    //     return <InputText type="text" value={options.value} onChange={(e) => options.editorCallback(e.target.value)} />;
+    // };
 
 
-    const roleEditor = (options) => {
-        return (
-            <Dropdown
-                value={options.value}
-                options={roles}
-                onChange={(e) => options.editorCallback(e.value)}
-                placeholder="Select a Role"
-                itemTemplate={(option) => {
-                    return <Tag value={option}></Tag>;
-                }}
-            />
-        );
-    };
-
+    // const roleEditor = (options) => {
+    //     return (
+    //         <Dropdown
+    //             value={options.value}
+    //             options={roles}
+    //             onChange={(e) => options.editorCallback(e.value)}
+    //             placeholder="Select a Role"
+    //             itemTemplate={(option) => {
+    //                 return <Tag value={option}
+    //                 ></Tag>;
+    //             }}
+    //         />
+    //     );
+    // };
 
     const roleBodyTemplate = (rowData) => {
         return <Tag value={rowData.roles} ></Tag>;
     };
 
 
-    // 
 
-    const allowEdit = (rowData) => {
-        return rowData.name !== 'Blue Band';
-    };
-    // פונקציית מחיקה
     const handleDelete = async (rowData) => {
-        if (window.confirm(`Are you sure you want to delete ${rowData.fullname}?`)) {
             const res = await axios.delete(`http://localhost:1111/api/user/${rowData._id}`)
             console.log(res);
-            getDonors();
-        }
-        // עדכון ה-state
+            getStudents();
     };
 
-    // תבנית כפתור מחיקה
-    const deleteButtonTemplate = (rowData) => {
+
+    const editStudent = (student) => {
+        console.log("hhhh", student);
+
+        setStudentDialog(true);
+    };
+    const hideDialog = () => {
+        setSubmitted(false);
+        setStudentDialog(false);
+    };
+    const confirmDeleteStudent = (student) => {
+        setStudent(student);
+        setDeleteStudentDialog(true);
+    };
+    const actionBodyTemplate = (rowData) => {
         return (
-            <Button
-                icon="pi pi-trash"
-                className="p-button-danger"
-                onClick={() => handleDelete(rowData)}
-            />
+            <React.Fragment>
+                <Button icon="pi pi-pencil" rounded outlined className="mr-2" onClick={() => { setStudent(rowData); editStudent(rowData) }} />
+                <Button icon="pi pi-trash" rounded outlined severity="danger" onClick={() => confirmDeleteStudent(rowData)} />
+            </React.Fragment>
+        );
+    };
+    const hideDeleteStudentsDialog = () => {
+        setDeleteStudentDialog(false);
+    };
+    
+    const openNew = (rowdata) => {
+
+        setAdd(true)
+        setSubmitted(false);
+        setStudentDialog(true);
+    };
+    const exportCSV = () => {
+        dt.current.exportCSV();
+    };
+    // const confirmDeleteSelected = () => {
+    //     setDeleteStudentDialog(true);
+    // };
+    const addressBodyTemplate = (rowData) => {
+        const { street, city, buildingNumber } = rowData.address || {};
+        return [street,  buildingNumber, city].filter(Boolean).join(' ');
+    };
+    const leftToolbarTemplate = () => {
+        return (
+            <div className="flex flex-wrap gap-2">
+                <Button label="New" icon="pi pi-plus" severity="success" onClick={openNew} />
+            </div>
         );
     };
 
+    const rightToolbarTemplate = () => {
+        return <Button label="Export" icon="pi pi-upload" className="p-button-help" onClick={exportCSV} />;
+    };
     return (
+
         <div className="card p-fluid">
-            <DataTable value={students} editMode="row" dataKey="id" onRowEditComplete={onRowEditComplete} tableStyle={{ minWidth: '50rem' }}>
-                <Column field="userId" header="ID" editor={(options) => textEditor(options)} style={{ width: '10%' }}></Column>
-                <Column field="password" header="Password" editor={(options) => textEditor(options)} style={{ width: '10%' }}></Column>
-                <Column field="fullname" header="Fullname" editor={(options) => textEditor(options)} style={{ width: '10%' }}></Column>
-                <Column field="email" header="Email" editor={(options) => textEditor(options)} style={{ width: '10%' }}></Column>
-                <Column field="phone" header="Phone" editor={(options) => textEditor(options)} style={{ width: '10%' }}></Column>
-                <Column field="address" header="Address" editor={(options) => textEditor(options)} style={{ width: '10%' }}></Column>
-                <Column field="birthDate" header="BirthDate" editor={(options) => dateEditor(options)} style={{ width: '30%' }}></Column>
-                <Column field="roles" header="Role" body={roleBodyTemplate} editor={(options) => roleEditor(options)} style={{ width: '10%' }}></Column>
-                <Column rowEditor={allowEdit} headerStyle={{ width: '10%', minWidth: '8rem' }} bodyStyle={{ textAlign: 'center' }}></Column>
-                <Column
-                    body={deleteButtonTemplate}
-                    header="Delete"
-                    style={{ textAlign: 'center', width: '10%' }}
-                ></Column>
+            <Toast ref={toast} />
+
+            <Toolbar className="mb-4" left={leftToolbarTemplate} right={rightToolbarTemplate}></Toolbar>
+
+            <DataTable ref={dt} value={students} editMode="row" dataKey="id" onRowEditComplete={onRowEditComplete} tableStyle={{ minWidth: '50rem' }}>
+                <Column field="userId" header="ID" style={{ width: '10%' }}></Column>
+                <Column field="fullname" header="Fullname" style={{ width: '10%' }}></Column>
+                <Column field="email" header="Email" style={{ width: '10%' }}></Column>
+                <Column field="phone" header="Phone" style={{ width: '10%' }}></Column>
+                <Column field="address" header="Address" body={addressBodyTemplate} style={{ width: '10%' }}></Column>
+                <Column field="birthDate" header="BirthDate" style={{ width: '30%' }}></Column>
+                <Column field="roles" header="Role" body={roleBodyTemplate} style={{ width: '10%' }}></Column>
+                <Column body={actionBodyTemplate} exportable={false} style={{ minWidth: '12rem' }}></Column>
+
             </DataTable>
-            <div className="flex justify-content-right mb-4">
-                <p>
-                    <Button icon="pi pi-users" rounded severity="primary" aria-label="User"
-                        onClick={() => { setActiveComponenentAdd(true) }}> Add Students</Button></p></div>
+
+            <Dialog visible={deleteStudentDialog} style={{ width: '450px' }} header="Confirm" modal footer={
+                <React.Fragment>
+                    <Button label="No" icon="pi pi-times" className="p-button-text" onClick={hideDeleteStudentsDialog} />
+                    <Button label="Yes" icon="pi pi-check" className="p-button-text" onClick={() => { handleDelete(student); hideDeleteStudentsDialog(); }} />
+                </React.Fragment>
+            } onHide={hideDeleteStudentsDialog}>
+                <div className="confirmation-content">
+                    <i className="pi pi-exclamation-triangle" style={{ fontSize: '2rem' }} />
+                    {student && (<span>Are you sure you want to delete <b>{student.fullname}</b>?</span>)}
+                </div>
+            </Dialog>
+
+            {student ? <UserForm setStudent={setStudent} student={student} setStudentDialog={setStudentDialog} getStudents={getStudents} studentDialog={studentDialog}></UserForm> : <></>}
+            {add ? <UserForm setStudentDialog={setStudentDialog} getStudents={getStudents} studentDialog={studentDialog} setAdd={setAdd}></UserForm> : <></>}
+
         </div>
     );
 }

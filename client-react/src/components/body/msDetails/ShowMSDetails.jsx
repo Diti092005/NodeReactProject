@@ -16,10 +16,14 @@ const ShowMSDetails = () => {
     const printRef = useRef(null); // Ref for the print container
     const [MSDetails, setMSDetails] = useState([]);
     const [MSDetail, setMSDetail] = useState({});
-    
+    const [enableAdd, setEnableAdd] = useState(true)
     const getAllMSDetails = async () => {
         const res = await axios.get('http://localhost:1111/api/monthlyScholarshipDetails',
             { headers: { Authorization: `Bearer ${token}` } });
+        const addedMsdetails = await axios.get('http://localhost:1111/api/monthlyScholarshipDetails/thisMonth',
+            { headers: { Authorization: `Bearer ${token}` } });
+        if (addedMsdetails.data !== "")
+            setEnableAdd(false)
         setMSDetails(res.data);
     };
 
@@ -33,9 +37,16 @@ const ShowMSDetails = () => {
 
     const deleteMSDetails = async (rowData) => {
         if (window.confirm("Are you sure you want to delete this record?")) {
-            const res = await axios.delete(`http://localhost:1111/api/monthlyScholarshipDetails/${rowData._id}`,
-                { headers: { Authorization: `Bearer ${token}` } });
-            getAllMSDetails();
+            {
+                console.log((rowData.date));
+              const newDate = new Date(rowData.date)
+                if (newDate.getMonth() === new Date().getMonth()) {
+                    const res = await axios.delete(`http://localhost:1111/api/monthlyScholarshipDetails/${rowData._id}`,
+                        { headers: { Authorization: `Bearer ${token}` } });
+                    getAllMSDetails();
+                    setEnableAdd(true)
+                }
+            }
         }
     };
 
@@ -73,7 +84,7 @@ const ShowMSDetails = () => {
 
     const startContent = (
         <React.Fragment>
-            <Button icon="pi pi-plus" className="mr-2" onClick={createMSDatalis} />
+            <Button icon="pi pi-plus" className="mr-2" onClick={createMSDatalis} visible={enableAdd} />
             <Button icon="pi pi-print" className="mr-2" onClick={handlePrint} />
             <Button label="Export" icon="pi pi-upload" className="p-button-help" onClick={exportCSV} />
         </React.Fragment>
@@ -84,12 +95,13 @@ const ShowMSDetails = () => {
             <div className="card">
                 <Toolbar center={startContent} />
             </div>
-            <div  className="card">
+            <div className="card">
                 <DataTable ref={ms} value={MSDetails} tableStyle={{ minWidth: '50rem' }}>
                     <Column field="sumPerHour" header="SumPerHour"></Column>
                     <Column field="MaximumNumberOfHours" header="MaximumNumberOfHours"></Column>
                     <Column field="date" header="Date"></Column>
                     <Column header="DELETE" body={deleteButton}></Column>
+
                     <Column header="UPDATE" body={updateButton}></Column>
                 </DataTable>
                 {visible && <FormMSDetails visible={visible} setVisible={setVisible} MSDetail={MSDetail} getAllMSDetails={getAllMSDetails} />}

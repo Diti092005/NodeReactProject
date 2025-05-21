@@ -1,3 +1,4 @@
+const { default: mongoose } = require("mongoose");
 const BankDetails=require("../models/Bank_details")
 const User = require("../models/User")
 const isNumeric = (str) => {
@@ -28,6 +29,8 @@ const getBankDetailsById = async (req, res) => {/////////vvvvvvvvvvvvvvvvvvv
     const { id } = req.params
     if (!id)
         return res.status(400).send("Id is required")
+    if (!mongoose.Types.ObjectId.isValid(id))
+        return res.status(400).send("Not valid id")
     if(!User.find())
         return res.status(404).send("There are no users ")
     const allBankDetails = await BankDetails.find().lean()
@@ -42,6 +45,8 @@ const updateBankDetails=async(req,res)=>{//////////////////vvvvvvvvvvvvvvvvvvv
     const{student,bankNumber,bankAccount,bankBranch,id}=req.body
     if (!id)
         return res.status(400).send("Id is required")
+    if (!mongoose.Types.ObjectId.isValid(id))
+        return res.status(400).send("Not valid id")
     if (  !isNumeric(bankBranch)||!isNumeric(bankNumber)||!isNumeric(bankAccount)) {
         //console.log(bankNumber);console.log(bankBranch);console.log(bankAccount);
         return res.status(400).send(" field must be a number ")
@@ -68,6 +73,8 @@ const deleteBankDetails = async (req, res) => {//////////////////////vvvvvvvvvvv
     const { id } = req.params
     if (!id)
         return res.status(400).send("Id is required")
+    if (!mongoose.Types.ObjectId.isValid(id))
+        return res.status(400).send("Not valid id")
     if(!User.find())
         return res.status(404).send("There are no users ")
     const bankDetails = await BankDetails.findById(id).exec()

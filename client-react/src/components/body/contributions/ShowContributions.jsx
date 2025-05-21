@@ -1,19 +1,23 @@
-import { BrowserRouter as Router, Route, Routes } from "react-router-dom";
 import axios from "axios"
-import { useEffect, useState } from "react"
+import { useEffect, useRef, useState } from "react"
 //import CreateUser from "./CreateUser";
 import { DataTable } from 'primereact/datatable';
 import { Column } from 'primereact/column';
-
+import { Toolbar } from 'primereact/toolbar';
 import { Button } from "primereact/button";
 //import UpdateUser from "./UpdateUser";
 import CreateContribution from "./CreateContribution";
+import { useSelector } from "react-redux";
+import { logOut } from "../../../redux/tokenSlice";
 
 const Contributions = () => {
     const [contributions, setContributions] = useState([])
-   
+    const { token } = useSelector((state) => state.token);
+    const [visibleAdd, setVisibleAdd] = useState(false);
+    const [visibleUpdate, setVisibleUpdate] = useState(false);
+    const [contribution, setContribution] = useState({})
     const getAllContributions = async () => {
-        const res = await axios.get('http://localhost:1111/api/contribution')
+        const res = await axios.get('http://localhost:1111/api/contribution', { headers: { Authorization: `Bearer ${token}` } })
         // // const sortedItems = res.data.sort((a, b) => a.id - b.id);
         // // setUsers(sortedItems)
         setContributions(res.data)
@@ -23,59 +27,69 @@ const Contributions = () => {
     }, [])
 
     const deleteContribution = async (rowData) => {
-        console.log(rowData)
-      console.log(rowData._id)
-        const res = await axios.delete(`http://localhost:1111/api/contribution/${rowData._id}`)
-        getAllContributions()
-    }
+        const contribDate = new Date(rowData.date);
+        const now = new Date();
+        if (contribDate.getMonth() !== now.getMonth() || contribDate.getFullYear() !== now.getFullYear()) {
+            alert("You can't delete contributions from previous months!");
+            return;
+        } if (window.confirm("Are you sure you want to delete this record?")) {
 
+            await axios.delete(`http://localhost:1111/api/contribution/${rowData._id}`, {
+                headers: { Authorization: `Bearer ${token}` }
+            });
+            getAllContributions();
+        };
+    }
     const updateButton = (rowData) => {
         return (
-            <></>
-            // <UpdateUser user={rowData}  getAllUsers={getAllUsers}/>to change!!!!!!!!!!!!!!!!!!!
-
+            <>
+                <Button icon="pi pi-pencil" onClick={() => {
+                    const contribDate = new Date(rowData.date);
+                    const now = new Date();
+                    if (contribDate.getMonth()!== now.getMonth() || contribDate.getFullYear() !== now.getFullYear()) {
+                        alert("You can't delete contributions from previous months!");
+                        return;
+                    }
+                    else {
+                        console.log(rowData);
+                        
+                        setContribution(rowData)
+                        setVisibleUpdate(true)
+                    }
+                }} className="p-button-rounded" />
+            </>
         )
     }
 
 
     const deleteButton = (rowData) => {
-      
         return (
             <div className="flex align-items-center gap-2">
-                {/* <Button icon="pi pi-trash" onClick={()=>deleteUser(rowData)} className="p-button-rounded" /> to change!!!!!!!!!!!!!!!*/}
                 <Button icon="pi pi-trash" onClick={() => deleteContribution(rowData)} className="p-button-rounded" />
-                </div>
+            </div>
         )
     }
-
-
-
+    const leftToolbarTemplate = () => {
+        return (
+            <div className="flex flex-wrap gap-2">
+                <Button label="New" icon="pi pi-plus" severity="success" onClick={() => { setVisibleAdd(true) }} />
+            </div>
+        );
+    };
+    const toast = useRef(null);
     return (<>
-        <CreateContribution getAllContributions={getAllContributions}/>
-        {/* 
-        <div className="card p-fluid">
-            <DataTable value={users} editMode="row" dataKey="id" onRowEditComplete={onRowEditComplete} tableStyle={{ minWidth: '50rem' }}>
-                <Column field="username" header="User name" editor={(options) => textEditor(options)} style={{ width: '20%' }}></Column>
-                <Column field="name" header="Name" editor={(options) => textEditor(options)} style={{ width: '20%' }}></Column>
-                {/* <Column field="inventoryStatus" header="Status" body={statusBodyTemplate} editor={(options) => statusEditor(options)} style={{ width: '20%' }}></Column>
-                <Column field="price" header="Price" body={priceBodyTemplate} editor={(options) => priceEditor(options)} style={{ width: '20%' }}></Column> */}
-        {/* <Column rowEditor={allowEdit} headerStyle={{ width: '10%', minWidth: '8rem' }} bodyStyle={{ textAlign: 'center' }}></Column> */}
-        {/* //</></div> */}
-
+        <Toolbar className="mb-4" left={leftToolbarTemplate} ></Toolbar>
         <div className="card">
-            <DataTable value={contributions}  tableStyle={{ minWidth: '50rem' }}>
-            <Column field="donor" header="Donor"></Column>
+            <DataTable value={contributions} tableStyle={{ minWidth: '50rem' }}>
+                {/* <Column field="donor" header="donor.fullname"></Column> */}
                 <Column field="date" header="Date"></Column>
                 <Column field="sumContribution" header="Contribution Sum"></Column>
-                
-               <Column header="DELETE" body={deleteButton()}></Column> 
+                <Column header="DELETE" body={deleteButton}></Column>
                 <Column header="UPDATE" body={updateButton}></Column>
-
             </DataTable>
+            <CreateContribution visible={visibleAdd} setVisible={setVisibleAdd} getAllContributions={getAllContributions} contribution={contribution} />
+            <CreateContribution visible={visibleUpdate} setVisible={setVisibleUpdate} getAllContributions={getAllContributions} contribution={contribution} />
         </div>
-
-
-
     </>)
 }
 export default Contributions
@@ -444,4 +458,3 @@ export default Contributions
 //         </div>
 //     );
 // }
-        

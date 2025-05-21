@@ -13,7 +13,7 @@ import FormCRStatus from "./FormCRStatus";
 const CRStatus = () => {
     const { token } = useSelector((state) => state.token);
     const [visible, setVisible] = useState(false);
-    const ms = useRef(null);
+    const cr = useRef(null);
     const printRef = useRef(null); // Ref for the print container
     const [CRStatuses, setCRStatuses] = useState([]);
     const [filteredCRStatuses, setFilteredCRStatuses] = useState([]); // Filtered data
@@ -33,7 +33,7 @@ const CRStatus = () => {
     }, []);
 
     const exportCSV = () => {
-        ms.current.exportCSV();
+        cr.current.exportCSV();
     };
 
     const deleteCRStatus = async (rowData) => {
@@ -82,11 +82,21 @@ const CRStatus = () => {
 
     const years = Array.from(new Set(CRStatuses.map(status => new Date(status.date).getFullYear()))); // Unique years
     const months = Array.from({ length: 12 }, (_, i) => i + 1); // Months 1-12
+    
+    const handlePrint = () => {
+        const printContent = printRef.current;
+        const printWindow = window.open('', '_blank');
+        printWindow.document.write('<html><head><title>Print</title></head><body>');
+        printWindow.document.write(printContent.innerHTML);
+        printWindow.document.write('</body></html>');
+        printWindow.document.close();
+        printWindow.print();
+    };
 
     const startContent = (
         <React.Fragment>
             <Button icon="pi pi-plus" className="mr-2" onClick={createCRStatus} />
-            <Button icon="pi pi-print" className="mr-2" />
+            <Button icon="pi pi-print" className="mr-2" onClick={handlePrint} />
             <Button label="Export" icon="pi pi-upload" className="p-button-help" onClick={exportCSV} />
         </React.Fragment>
     );
@@ -116,7 +126,7 @@ const CRStatus = () => {
                 </div>
 
                 {/* Data Table */}
-                <DataTable ref={ms} value={filteredCRStatuses} tableStyle={{ minWidth: '50rem' }}>
+                <DataTable  value={filteredCRStatuses} tableStyle={{ minWidth: '50rem' }}>
                     <Column field="action" header="Action"></Column>
                     <Column field="sumPerAction" header="SumPerAction"></Column>
                     <Column field="currentSum" header="CurrentSum"></Column>
@@ -125,6 +135,30 @@ const CRStatus = () => {
                     <Column header="UPDATE" body={updateButton}></Column>
                 </DataTable>
                 {visible && <FormCRStatus visible={visible} setVisible={setVisible} CRStatus={CRStatus} getAllCRStauses={getAllCRStauses} />}
+            </div>
+            {/* Hidden content for printing */}
+            <div ref={printRef} style={{ display: 'none' }}>
+                <h1>Cash Register Status</h1>
+                <table border="1" style={{ width: '100%', borderCollapse: 'collapse' }}>
+                    <thead>
+                        <tr>
+                            <th>Action</th>
+                            <th>Sum Per Action</th>
+                            <th>Current Sum</th>
+                            <th>Date</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {CRStatuses.map((detail, index) => (
+                            <tr key={index}>
+                                <td>{detail.action}</td>
+                                <td>{detail.sumPerAction}</td>
+                                <td>{detail.currentSum}</td>
+                                <td>{new Date(detail.date).toLocaleDateString()}</td>
+                            </tr>
+                        ))}
+                    </tbody>
+                </table>
             </div>
         </>
     );

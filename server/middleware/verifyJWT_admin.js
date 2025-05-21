@@ -12,9 +12,7 @@ const verifyJWTAdmin=(req,res,next)=>{
             if (err||decode.role!=="Admin") 
                 return res.status(403).json({ message:
                 'Forbidden' })
-              
             req.user=decode
-
             next()    
         }
     )

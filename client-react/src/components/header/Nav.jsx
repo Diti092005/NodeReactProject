@@ -1,6 +1,8 @@
 import { Menubar } from 'primereact/menubar';
-import { useNavigate } from 'react-router-dom';
+import { useSelector } from 'react-redux';
+import { useNavigate, useSearchParams } from 'react-router-dom';
 const Nav=()=>{
+    const {user}=useSelector(state=>state.token)
     const navigate=useNavigate()
     const items = [
         {
@@ -10,6 +12,7 @@ const Nav=()=>{
                 navigate('./home')
             }
         },
+        user&&
         {
             label: 'LogOut',
             icon: 'pi pi-bars',
@@ -22,13 +25,6 @@ const Nav=()=>{
             icon: 'pi pi-bars',
             command: () => {
                 navigate('./cashregisterstatus')
-            }
-        },
-        {
-            label: 'Login',
-            icon: 'pi pi-check',
-            command: () => {
-                navigate('./login')
             }
         },
         {
@@ -46,12 +42,18 @@ const Nav=()=>{
             }
         },
         {
-            label: 'ShowMSDetails',
+            label: 'ShowDetailsMonthlyScholarship',
             icon: 'pi pi-user',
             command: () => {
                 navigate('./showMSDetails')
             }
-        }]
+        },user===null&&{
+            label: 'Login',
+            icon: 'pi pi-check',
+            command: () => {
+                navigate('./login')
+            }
+        },]
     return(
         <>
          <Menubar  model={items} />

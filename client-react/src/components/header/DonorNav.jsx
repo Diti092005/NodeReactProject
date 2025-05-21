@@ -11,13 +11,6 @@ const navigate = useNavigate()
             }
         },
         {
-            label: 'Home',
-            icon: 'pi pi-home',
-            command: () => {
-                navigate('./paymentPage')
-            }
-        },
-        {
             label: 'LogOut',
             icon: 'pi pi-bars',
             command: () => {
@@ -25,17 +18,18 @@ const navigate = useNavigate()
             }
         },
         {
+            label: 'MyContributions',
+            icon: 'pi pi-user',
+            command: () => {
+                navigate('./contributionDonor')
+            }
+        },
+        ,
+        {
             label: 'Login',
             icon: 'pi pi-check',
             command: () => {
                 navigate('./login')
-            }
-        },
-        {
-            label: 'StudentDSetails',
-            icon: 'pi pi-user',
-            command: () => {
-                navigate('./students')
             }
         }
     ]

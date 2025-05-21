@@ -1,7 +1,10 @@
 import { Menubar } from 'primereact/menubar';
+import { useSelector } from 'react-redux';
 import { useNavigate } from 'react-router-dom';
 const StudentNav = () => {
     const navigate = useNavigate()
+    const {user}=useSelector(state=>state.token)
+
     const items = [
         {
             label: 'Home',
@@ -10,6 +13,7 @@ const StudentNav = () => {
                 navigate('./home')
             }
         },
+        user&&
         {
             label: 'LogOut',
             icon: 'pi pi-bars',
@@ -18,19 +22,19 @@ const StudentNav = () => {
             }
         },
         {
+            label: 'StudentDSetails',
+            icon: 'pi pi-user',
+            command: () => {
+                navigate('./studentDetails')
+            }
+        },
+        user===null&&{
             label: 'Login',
             icon: 'pi pi-check',
             command: () => {
                 navigate('./login')
             }
         },
-        {
-            label: 'StudentDSetails',
-            icon: 'pi pi-user',
-            command: () => {
-                navigate('./students')
-            }
-        }
     ]
     return (
         <>

@@ -1,9 +1,11 @@
+const { default: mongoose } = require("mongoose")
 const CashRegisterStatus = require("../models/Cash_Register_Status")
 
 const getAllCashRegisterStatus = async (req, res) => {//vvvvvvvvvvvvvvvvvv
     const cashregistersatuses = await CashRegisterStatus.find().lean()
     if (!cashregistersatuses?.length) {
-        res.json([])    }
+        res.json([])
+    }
     res.json(cashregistersatuses)
 }
 const getCashRegisterStatusById = async (req, res) => {//vvvvvvvvvvvv
@@ -13,6 +15,8 @@ const getCashRegisterStatusById = async (req, res) => {//vvvvvvvvvvvv
         return res.status(404).send("No cashregistersatuses exists")
     if (!id)
         return res.status(400).send("Id is required")
+    if (!mongoose.Types.ObjectId.isValid(id))
+        return res.status(400).send("Not valid id")
     const cashregistersatus = await CashRegisterStatus.findById(id).lean()
     if (!cashregistersatus)
         return res.status(400).send("This cashregistersatus isn't exists")
@@ -20,20 +24,39 @@ const getCashRegisterStatusById = async (req, res) => {//vvvvvvvvvvvv
 }
 
 const addCashRegisterStatus = async (req, res) => {//vvvvvvvvvvvvvvvvvvvvv
-    const { action, sumPerAction ,currentSum,date} = req.body
-    if (!action||!sumPerAction||!currentSum||!date)//currentSum האם נכון לדרוש שליחה של
+    const { action, sumPerAction, date } = req.body
+    if (!action || !sumPerAction || !date)//currentSum האם נכון לדרוש שליחה של
         return res.status(400).send("All fields are required!!")
-     if(action!=='Income'&&action!=='Expense')
+    if (action !== 'Income' && action !== 'Expense')
         return res.status(400).send("action must be Income or Expense!!")
+    const cashregistersatuses = await CashRegisterStatus.find().lean()
+    if (!cashregistersatuses?.length) {
+        let sum=0;
+        if (action === "Income")
+           sum= Number(sumPerAction)
+        else
+            sum = - Number(sumPerAction)
+        const cashregistersatus = await CashRegisterStatus.create({ currentSum: sum, sumPerAction, action, date })
+        res.json(cashregistersatus)
 
+    }
+    else {
+        let sum = cashregistersatuses[cashregistersatuses.length - 1].currentSum
+        if (action === "Income")
+            sum += Number(sumPerAction)
 
-    const cashregistersatus = await CashRegisterStatus.create({ currentSum, sumPerAction, action,date })
-    res.json(cashregistersatus)
+        else
+            sum -= Number(sumPerAction)
+        const cashregistersatus = await CashRegisterStatus.create({ currentSum: sum, sumPerAction, action, date })
+        res.json(cashregistersatus)
+    }
 }
 const updateCashRegisterStatus = async (req, res) => {//vvvvvvvvvvvvvvv
-    const { currentSum, sumPerAction, action, id,date } = req.body
+    const { currentSum, sumPerAction, action, id, date } = req.body
     if (!id)
         return res.status(400).send("Id is required")
+    if (!mongoose.Types.ObjectId.isValid(id))
+        return res.status(400).send("Not valid id")
     const cashregistersatuses = await CashRegisterStatus.find().lean()
     if (!cashregistersatuses?.length)
         return res.status(404).send("No cashregistersatuses exists")
@@ -56,6 +79,8 @@ const deleteCashRegisterStatusById = async (req, res) => {//vvvvvvvvvvvv
     const { id } = req.params
     if (!id)
         return res.status(400).send("Id is required")
+    if (!mongoose.Types.ObjectId.isValid(id))
+        return res.status(400).send("Not valid id")
     const cashregistersatuses = await CashRegisterStatus.find().lean()
     if (!cashregistersatuses?.length)
         return res.status(404).send("No cashregistersatuses exists")
