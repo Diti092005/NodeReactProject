@@ -19,6 +19,7 @@ import { Toolbar } from 'primereact/toolbar';
 import { useForm, Controller } from 'react-hook-form';
 import UserForm from './userForm';
 import { format } from 'date-fns';
+import { useSearchParams } from 'react-router-dom';
 
 
 export default function Users() {
@@ -48,25 +49,36 @@ export default function Users() {
     //     roles: '',
     //     userId: ''
     // };
+    const [selectedRole, setSelectedRole] = useState("All");
+    const [filteredUsers, setFilterdUsers] = useState(null)
 
     const getUsers = async () => {
         const res = await axios.get("http://localhost:1111/api/user",
-            { headers: { Authorization: `Bearer ${token}` } }
-        )
+            { headers: { Authorization: `Bearer ${token}` } })
         setUsers(res.data)
     }
     useEffect(() => {
         getUsers();
     }, []);
 
+    useEffect(() => {
+        if (selectedRole && selectedRole === "All")
+            setFilterdUsers(users)
+        else if (selectedRole && selectedRole === "Admin")
+            setFilterdUsers(users.filter(u => u.role === selectedRole))
+        else if (selectedRole && selectedRole === "Donor")
+            setFilterdUsers(users.filter(u => u.role === selectedRole))
+        else if (selectedRole && selectedRole === "Student")
+            setFilterdUsers(users.filter(u => u.role === selectedRole))
+        else
+            setFilterdUsers(users)
+    }, [selectedRole]);
 
 
     const onRowEditComplete = (e) => {
         let _students = [...users];
         let { newData, index } = e;
-
         _students[index] = newData;
-
         setUsers(_students);
     };
     // const dateEditor = (options) => {
@@ -106,23 +118,30 @@ export default function Users() {
     };
 
     const handleDelete = async (rowData) => {
-        const res = await axios.delete(`http://localhost:1111/api/user/${rowData._id}`, 
+        const res = await axios.delete(`http://localhost:1111/api/user/${rowData._id}`,
             { headers: { Authorization: `Bearer ${token}` } })
         getUsers();
     };
-
 
     const editStudent = (user) => {
         setUser(user);
         setStudentDialog(true);
     };
+
     const hideDialog = () => {
         setSubmitted(false);
         setStudentDialog(false);
     };
-    const confirmDeleteStudent = (student) => {
-        setUser(student);
-        setDeleteStudentDialog(true);
+    const confirmDeleteStudent = async (user) => {
+        if (window.confirm("Are you sure you want to delete this record?")) {
+            {
+                const res = await axios.delete(`http://localhost:1111/api/user/${user._id}`,
+                    { headers: { Authorization: `Bearer ${token}` } });
+                getUsers();
+            }
+        }
+        // setUser(student);
+        // setDeleteStudentDialog(true);
     };
     const actionBodyTemplate = (rowData) => {
         return (
@@ -137,7 +156,8 @@ export default function Users() {
     };
 
     const openNew = (rowdata) => {
-        setAdd(true)
+        setAdd(true);
+
         setSubmitted(false);
         setStudentDialog(true);
     };
@@ -160,12 +180,19 @@ export default function Users() {
         return (
             <div className="flex flex-wrap gap-2">
                 <Button label="New" icon="pi pi-plus" severity="success" onClick={openNew} />
+                <Dropdown
+                    value={selectedRole}
+                    options={[{ label: "All", value: null }, ...roles.map(r => ({ label: r, value: r }))]}
+                    onChange={e => setSelectedRole(e.value)}
+                    className="w-12rem ml-3"
+                    defaultValue={"All"}
+                />
             </div>
         );
     };
 
     const rightToolbarTemplate = () => {
-        return <Button label="Export" icon="pi pi-upload" className="p-button-help" onClick={exportCSV} />;
+          return  <Button label="Export" icon="pi pi-download" iconPos="right" className="p-button-help" onClick={exportCSV} />
     };
     return (
 
@@ -174,16 +201,15 @@ export default function Users() {
 
             <Toolbar className="mb-4" left={leftToolbarTemplate} right={rightToolbarTemplate}></Toolbar>
 
-            <DataTable ref={dt} value={users} editMode="row" dataKey="id" onRowEditComplete={onRowEditComplete} tableStyle={{ minWidth: '50rem' }}>
+            <DataTable ref={dt} value={filteredUsers ? filteredUsers : users} editMode="row" dataKey="id" onRowEditComplete={onRowEditComplete} tableStyle={{ minWidth: '50rem' }}>
                 <Column field="userId" header="ID" style={{ width: '10%' }}></Column>
                 <Column field="fullname" header="Fullname" style={{ width: '10%' }}></Column>
                 <Column field="email" header="Email" style={{ width: '10%' }}></Column>
                 <Column field="phone" header="Phone" style={{ width: '10%' }}></Column>
                 <Column field="address" header="Address" body={addressBodyTemplate} style={{ width: '10%' }}></Column>
                 <Column field="birthDate" header="BirthDate" body={birthDateBodyTemplate} style={{ width: '30%' }}></Column>
-                <Column field="roles" header="Role" body={roleBodyTemplate} style={{ width: '10%' }}></Column>
+                <Column field="role" header="Role" body={roleBodyTemplate} style={{ width: '10%' }}></Column>
                 <Column body={actionBodyTemplate} exportable={false} style={{ minWidth: '12rem' }}></Column>
-
             </DataTable>
 
             <Dialog visible={deleteStudentDialog} style={{ width: '450px' }} header="Confirm" modal footer={
@@ -192,14 +218,14 @@ export default function Users() {
                     <Button label="Yes" icon="pi pi-check" className="p-button-text" onClick={() => { handleDelete(user); hideDeleteStudentsDialog(); }} />
                 </React.Fragment>
             } onHide={hideDeleteStudentsDialog}>
-                <div className="confirmation-content">
+                {/* <div className="confirmation-content">
                     <i className="pi pi-exclamation-triangle" style={{ fontSize: '2rem' }} />
                     {user && (<span>Are you sure you want to delete <b>{user.fullname}</b>?</span>)}
-                </div>
+                </div> */}
             </Dialog>
 
             {user ? <UserForm setStudent={setUser} student={user} setStudentDialog={setStudentDialog} getStudents={getUsers} studentDialog={studentDialog}></UserForm> : <></>}
-            {add ? <UserForm setStudentDialog={setStudentDialog} getStudents={getUsers} studentDialog={studentDialog} setAdd={setAdd}></UserForm> : <></>}
+            {add ? <UserForm setStudentDialog={setStudentDialog} getStudents={getUsers} studentDialog={studentDialog} setAdd={setAdd} ></UserForm> : <></>}
 
         </div>
     );

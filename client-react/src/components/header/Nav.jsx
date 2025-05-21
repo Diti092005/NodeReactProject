@@ -27,11 +27,18 @@ const Nav=()=>{
                 navigate('./cashregisterstatus')
             }
         },
+        // {
+        //     label: 'Students',
+        //     icon: 'pi pi-user',
+        //     command: () => {
+        //         navigate('./students')
+        //     }
+        // },
         {
-            label: 'Students',
+            label: 'Users',
             icon: 'pi pi-user',
             command: () => {
-                navigate('./students')
+                navigate('./users')
             }
         },
         {

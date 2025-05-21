@@ -82,7 +82,7 @@ const CRStatus = () => {
 
     const years = Array.from(new Set(CRStatuses.map(status => new Date(status.date).getFullYear()))); // Unique years
     const months = Array.from({ length: 12 }, (_, i) => i + 1); // Months 1-12
-    
+
     const handlePrint = () => {
         const printContent = printRef.current;
         const printWindow = window.open('', '_blank');
@@ -97,7 +97,7 @@ const CRStatus = () => {
         <React.Fragment>
             <Button icon="pi pi-plus" className="mr-2" onClick={createCRStatus} />
             <Button icon="pi pi-print" className="mr-2" onClick={handlePrint} />
-            <Button label="Export" icon="pi pi-upload" className="p-button-help" onClick={exportCSV} />
+            <Button label="Export" icon="pi pi-download" iconPos="right" className="p-button-help" onClick={exportCSV} />
         </React.Fragment>
     );
 
@@ -126,7 +126,7 @@ const CRStatus = () => {
                 </div>
 
                 {/* Data Table */}
-                <DataTable  value={filteredCRStatuses} tableStyle={{ minWidth: '50rem' }}>
+                <DataTable value={filteredCRStatuses} ref= {cr}tableStyle={{ minWidth: '50rem' }}>
                     <Column field="action" header="Action"></Column>
                     <Column field="sumPerAction" header="SumPerAction"></Column>
                     <Column field="currentSum" header="CurrentSum"></Column>

@@ -1,7 +1,9 @@
 import { Menubar } from "primereact/menubar"
+import { useSelector } from "react-redux"
 import { useNavigate } from "react-router-dom"
 const DonorNav = () => {
 const navigate = useNavigate()
+const {user}=useSelector(state=>state.token)
     const items = [
         {
             label: 'Home',
@@ -10,7 +12,7 @@ const navigate = useNavigate()
                 navigate('./home')
             }
         },
-        {
+        user&&{
             label: 'LogOut',
             icon: 'pi pi-bars',
             command: () => {
@@ -24,7 +26,7 @@ const navigate = useNavigate()
                 navigate('./contributionDonor')
             }
         },
-        ,
+        user===null&&
         {
             label: 'Login',
             icon: 'pi pi-check',

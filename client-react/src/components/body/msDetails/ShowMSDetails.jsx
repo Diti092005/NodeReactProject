@@ -39,7 +39,7 @@ const ShowMSDetails = () => {
         if (window.confirm("Are you sure you want to delete this record?")) {
             {
                 console.log((rowData.date));
-              const newDate = new Date(rowData.date)
+                const newDate = new Date(rowData.date)
                 if (newDate.getMonth() === new Date().getMonth()) {
                     const res = await axios.delete(`http://localhost:1111/api/monthlyScholarshipDetails/${rowData._id}`,
                         { headers: { Authorization: `Bearer ${token}` } });
@@ -86,7 +86,7 @@ const ShowMSDetails = () => {
         <React.Fragment>
             <Button icon="pi pi-plus" className="mr-2" onClick={createMSDatalis} visible={enableAdd} />
             <Button icon="pi pi-print" className="mr-2" onClick={handlePrint} />
-            <Button label="Export" icon="pi pi-upload" className="p-button-help" onClick={exportCSV} />
+            <Button label="Export" icon="pi pi-download" iconPos="right" className="p-button-help" onClick={exportCSV} />
         </React.Fragment>
     );
 

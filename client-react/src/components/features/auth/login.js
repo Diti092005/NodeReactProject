@@ -49,9 +49,10 @@ export default function Login() {
     };
 
     return (
-        <div className="card">
-            <div className=" flex-column md:flex-row">
-                <div style={{ marginBottom: 100 }} className="w-full md:w-full flex flex-column align-items-center justify-content-center gap-3 py-5">
+        <div className="card" style={{ minHeight: "100vh" }}>
+            <div className="flex flex-column md:flex-row h-full">
+                {/* צד שמאל - Login */}
+                <div className="w-full md:w-6 flex flex-column align-items-center justify-content-center gap-3 py-5" style={{ flex: 1 }}>
                     <div style={{ marginBottom: 20 }} className="flex flex-wrap justify-content-center align-items-center gap-2">
                         <label className="w-6rem">UserId</label>
                         <InputText onChange={(e) => setUserName(e.target.value)} id="username" type="text" className="w-12rem" />
@@ -62,24 +63,25 @@ export default function Login() {
                     </div>
                     <Button onClick={login} label="Login" icon="pi pi-user" className="w-10rem mx-auto"></Button>
                 </div>
-                <div className="w-full md:w-full">
-                    {/* <Divider layout="horizontal" className="hidden md:flex">
+    
+                {/* מחיצה */}
+                <div className="hidden md:flex align-items-center" style={{ height: "100%" }}>
+                    <Divider layout="vertical">
                         <b>OR</b>
-                    </Divider> */}
-                    {/* <Divider layout="horizontal" className="flex md:hidden" align="center">
-                        <b>OR</b>
-                    </Divider> */}
+                    </Divider>
                 </div>
-
-                {/* <div className="w-full md:w-full align-items-center justify-content-center py-5">
-                    <Button style={{ margin: 30 }} onClick={() => setVisibleCust(true)} label="to purchase a panel" icon="pi pi-user-plus" severity="success" className="w-10rem"></Button>
-                    <br />
-                    <Button onClick={() => setVisiblePart(true)} label="new participant" icon="pi pi-user-plus" severity="success" className="w-10rem"></Button>
-                </div> */}
+                <div className="flex md:hidden">
+                    <Divider layout="horizontal" align="center">
+                        <b>OR</b>
+                    </Divider>
+                </div>
+    
+                {/* צד ימין - Sign Up */}
+                <div className="w-full md:w-6 flex align-items-center justify-content-center py-5" style={{ flex: 1 }}>
+                    <Button label="Sign Up As A Donor" icon="pi pi-user-plus" severity="success" className="w-10rem"></Button>
+                </div>
             </div>
-            {/* {visiblePart ? <SignUpParticipant setVisible={setVisiblePart} visible={visiblePart}></SignUpParticipant> : <></>}
-            {visibleCust ? <SignUpCustomer setVisible={setVisibleCust} visible={visibleCust} /> : <></>} */}
-            <Toast ref={toast} /> {/* Toast component for notifications */}
+            <Toast ref={toast} />
         </div>
     )
 }

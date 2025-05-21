@@ -7,6 +7,7 @@ import { classNames } from 'primereact/utils';
 import axios from 'axios';
 import { useSelector } from 'react-redux';
 import { Calendar } from 'primereact/calendar';
+import { Dropdown } from 'primereact/dropdown';
 const UserForm = ({ studentDialog, setStudentDialog, getStudents, student, setAdd, setStudent, updateTheUser }) => {
     const [showMessage, setShowMessage] = useState(false);
     const [showMessageError, setShowMessageError] = useState(false);
@@ -30,25 +31,26 @@ const UserForm = ({ studentDialog, setStudentDialog, getStudents, student, setAd
 
     const onSubmit = async (data) => {
         data = { ...data, role: "Student" }
-        if (student._id) {
+        if (student?._id) {
             console.log(student);
             const res = await axios.put("http://localhost:1111/api/user",
                 data,
                 { headers: { Authorization: `Bearer ${token}` } }
             )
+            getStudents()
         }
         else {
             const res = await axios.post("http://localhost:1111/api/user",
                 data,
                 { headers: { Authorization: `Bearer ${token}` } }
             )
+            getStudents()
         }
         hideDialog()
         if (updateTheUser)
             updateTheUser()
         if (getStudents)
             getStudents()
-
     }
     const getFormErrorMessage = (name) => {
         return errors[name] && <small className="p-error">{errors[name].message}</small>
@@ -70,6 +72,10 @@ const UserForm = ({ studentDialog, setStudentDialog, getStudents, student, setAd
         }
         setStudentDialog(false);
     }
+    const roleOptions = [
+        { label: 'Donor', value: 'Donor' },
+        { label: 'Student', value: 'Student' },
+    ];
     useEffect(() => {
         console.log(student);
     }, [])
@@ -156,7 +162,6 @@ const UserForm = ({ studentDialog, setStudentDialog, getStudents, student, setAd
                                 )} />
                                 <label htmlFor="city" className={classNames({ 'p-error': errors.name })}>City</label>
                             </span>
-
                         </div>
                         <div className="field">
                             <span className="p-float-label">
@@ -165,8 +170,16 @@ const UserForm = ({ studentDialog, setStudentDialog, getStudents, student, setAd
                                 )} />
                                 <label htmlFor="street" className={classNames({ 'p-error': errors.name })}>Street</label>
                             </span>
-
                         </div>
+                    {role==="Admin"&&<div className="field">
+                        <span className="p-float-label">
+                            <Controller name="role" control={control} render={({ field, fieldState }) => (
+                                <Dropdown id={field.role} required {...field} options={roleOptions} autoFocus className={classNames({ 'p-invalid': fieldState.invalid })} 
+                                />
+                            )} />
+                            <label htmlFor="role" className={classNames({ 'p-error': errors.name })}>Role*</label>
+                        </span>
+                    </div>}
                         <div className="field">
                             <span className="p-float-label">
                                 <Controller name="numOfBuilding" control={control} render={({ field, fieldState }) => (
