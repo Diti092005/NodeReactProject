@@ -2,7 +2,6 @@ const { default: mongoose } = require("mongoose");
 const MonthlyScholarshipDetails=require("../models/Monthly_scholarship_details")
 
 const addMonthlyScholarshipDetails=async(req,res)=>{//vvvvvvvvvv
-    console.log("addMonthlyScholarshipDetails");
     const {sumPerHour,MaximumNumberOfHours,date}=req.body
     if(!date||!sumPerHour||!MaximumNumberOfHours)
         return res.status(400).send("All fields are required")
@@ -13,7 +12,7 @@ const addMonthlyScholarshipDetails=async(req,res)=>{//vvvvvvvvvv
 const getAllMonthlyScholarshipDetails=async(req,res)=>{//vvvvvvvvvvvvv
     const allMonthlyScholarshipDetails= await MonthlyScholarshipDetails.find().lean()
     if(!getAllMonthlyScholarshipDetails?.length)
-        res.json([])
+        return res.json([])
     res.json(allMonthlyScholarshipDetails)
 }   
 

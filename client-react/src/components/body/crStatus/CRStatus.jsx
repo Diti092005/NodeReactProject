@@ -21,7 +21,7 @@ const CRStatus = () => {
     const [selectedYear, setSelectedYear] = useState(null); // Selected year for filtering
     const [selectedMonth, setSelectedMonth] = useState(null); // Selected month for filtering
 
-    const getAllCRStauses = async () => {
+    const getAllCRStatuses = async () => {
         const res = await axios.get('http://localhost:1111/api/cashRegisterStatus',
             { headers: { Authorization: `Bearer ${token}` } });
         setCRStatuses(res.data);
@@ -29,7 +29,7 @@ const CRStatus = () => {
     };
 
     useEffect(() => {
-        getAllCRStauses();
+        getAllCRStatuses();
     }, []);
 
     const exportCSV = () => {
@@ -40,7 +40,7 @@ const CRStatus = () => {
         if (window.confirm("Are you sure you want to delete this record?")) {
             const res = await axios.delete(`http://localhost:1111/api/cashRegisterStatus/${rowData._id}`,
                 { headers: { Authorization: `Bearer ${token}` } });
-            getAllCRStauses();
+            getAllCRStatuses();
         }
     };
 
@@ -65,7 +65,13 @@ const CRStatus = () => {
         setCRStatus({ _id: 0, action: 'Expense', date: new Date(), sumPerAction: 0, currentSum: 0 });
         setVisible(true);
     };
-
+    const updateCRStatuses = async () => {
+        // const resExpenses = await axios.post("http://localhost:1111/api/hapenOnceAMonth/Expense",
+        //     { headers: { Authorization: `Bearer ${token}` } });
+        const resIncomes = await axios.post("http://localhost:1111/api/hapenOnceAMonth/Income",
+            { headers: { Authorization: `Bearer ${token}` } });
+        getAllCRStatuses();
+    }
     // Filter by year
     const filterByYear = (year) => {
         setSelectedYear(year);
@@ -95,7 +101,8 @@ const CRStatus = () => {
 
     const startContent = (
         <React.Fragment>
-            <Button icon="pi pi-plus" className="mr-2" onClick={createCRStatus} />
+            <Button icon="pi pi-plus" className="mr-2" label="Update Expences & Incoms" iconPos="right" onClick={updateCRStatuses} />
+            <Button icon="pi pi-plus" className="mr-2" label="Add an Expense" iconPos="right" onClick={createCRStatus} />
             <Button icon="pi pi-print" className="mr-2" onClick={handlePrint} />
             <Button label="Export" icon="pi pi-download" iconPos="right" className="p-button-help" onClick={exportCSV} />
         </React.Fragment>
@@ -126,7 +133,7 @@ const CRStatus = () => {
                 </div>
 
                 {/* Data Table */}
-                <DataTable value={filteredCRStatuses} ref= {cr}tableStyle={{ minWidth: '50rem' }}>
+                <DataTable value={filteredCRStatuses} ref={cr} tableStyle={{ minWidth: '50rem' }}>
                     <Column field="action" header="Action"></Column>
                     <Column field="sumPerAction" header="SumPerAction"></Column>
                     <Column field="currentSum" header="CurrentSum"></Column>
@@ -134,7 +141,7 @@ const CRStatus = () => {
                     <Column header="DELETE" body={deleteButton}></Column>
                     <Column header="UPDATE" body={updateButton}></Column>
                 </DataTable>
-                {visible && <FormCRStatus visible={visible} setVisible={setVisible} CRStatus={CRStatus} getAllCRStauses={getAllCRStauses} />}
+                {visible && <FormCRStatus visible={visible} setVisible={setVisible} CRStatus={CRStatus} getAllCRStatuses={getAllCRStatuses} />}
             </div>
             {/* Hidden content for printing */}
             <div ref={printRef} style={{ display: 'none' }}>

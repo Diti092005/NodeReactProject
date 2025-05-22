@@ -30,7 +30,7 @@ const addContrbutionByDonorId = async (req, res) => {///////////vvvvvvvvv
 const getAllContrbutions = async (req, res) => {//vvvvvvvvvv
     const allContrbutions = await Contribution.find().populate("donor", { fullname: 1, _id: 1 }).lean()
     if (!allContrbutions?.length)
-        res.json([])
+        return res.json([])
     res.json(allContrbutions)
 }
 

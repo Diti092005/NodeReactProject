@@ -77,9 +77,9 @@ const PaymentPage = (props) => {
         }
         const paymentData = { cardHolderName, cardNumber, expirationDate, cvv };
         alert("Payment Successful!");
-        const res = await axios.post("http://localhost:1111/api/cashRegisterStatus", { action: "Income", date: new Date(), sumPerAction: props.sumContribution, currentSum: 0 },
-            { headers: { Authorization: `Bearer ${token}` } })
-        console.log(res.data);
+        // const res = await axios.post("http://localhost:1111/api/cashRegisterStatus", { action: "Income", date: new Date(), sumPerAction: props.sumContribution, currentSum: 0 },
+        //     { headers: { Authorization: `Bearer ${token}` } })
+        // console.log(res.data);
         props.setCheckPay(true)
         props.setVisible(false);
     };

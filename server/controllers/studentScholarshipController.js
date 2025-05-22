@@ -4,7 +4,7 @@ const User = require("../models/User")
 const getAllStudentScholarships = async (req, res) => {//vvvvvvvvvvvv
     const studentScholarships = await StudentScholarship.find().populate("student", { fullname: 1, _id: 1 }).lean();
     if (!studentScholarships?.length) {
-        res.json([])
+        return res.json([])
     }
     res.json(studentScholarships)
 }
@@ -30,38 +30,7 @@ const addStudentScholarship = async (req, res) => {//vvvvvvvvvvvvvv
     const studentScholarship = await StudentScholarship.create({ sumMoney, numHours, date, student })
     res.json(studentScholarship)
 }
-const addStudentScholarshipOnceAMonth = async (req, res) => {//
-    const students = await User.find({ role: "Student" }).lean()
-    if (!students?.length)
-        return res.status(404).send("No students found")
-    const startOfMonth = new Date();
-        startOfMonth.setDate(1); // Set to the first day of the current month
-        const endOfMonth = new Date();
-        endOfMonth.setMonth(endOfMonth.getMonth() + 1); // Set to the first day of the next month
-        endOfMonth.setDate(0); // Set to the last day of the current month
-        const moneyForHour = await monthlyScholarshipDetailsSchema.findOne({
-            date: {
-                $gte: startOfMonth,
-                $lt: endOfMonth
-            }
-        }).lean().then(doc => doc?.sumMoney);
-        if (!moneyForHour)
-            return res.status(404).send("No money found")
-    for (const student of students) {
-        const studentScholarship = await StudentScholarship.findOne({
-            student: student._id, date: {
-                $gte: startOfMonth,
-                $lt: endOfMonth
-            }
-        }).exec()
-        if (studentScholarship && studentScholarship.numHours) {
-            studentScholarship.sumMoney = moneyForHour * studentScholarship.numHours
-            await studentScholarship.save()
-        }
-    }
-    const studentScholarships=await StudentScholarship.find().lean()
-    res.json(studentScholarships)
-}
+
 
 const updateStudentScholarship = async (req, res) => {//vvvvvvvvvvvvvvvv
     const { sumMoney, numHours, date, student, id } = req.body
@@ -129,4 +98,4 @@ const getCurrentScholarships = async (req, res) => {
         res.status(500).json({ message: "שגיאה בשרת", error: err.message });
     }
 };
-module.exports = { addStudentScholarship,addStudentScholarshipOnceAMonth, getAllStudentScholarships, getStudentScholarshipById, getCurrentScholarships,updateStudentScholarship, deleteStudentScholarship }
+module.exports = { addStudentScholarship, getAllStudentScholarships, getStudentScholarshipById, getCurrentScholarships,updateStudentScholarship, deleteStudentScholarship }

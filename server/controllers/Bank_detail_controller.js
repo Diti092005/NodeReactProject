@@ -22,7 +22,7 @@ const addBankDetails=async(req,res)=>{
 const getAllBankDetails = async (req, res) => {/////////vvvvvvvvvvvvvvvvvvv
     const allBankDetails = await BankDetails.find().lean()
     if(!allBankDetails?.length)
-        res.json([])
+        return res.json([])
     res.json(allBankDetails)
 }
 const getBankDetailsById = async (req, res) => {/////////vvvvvvvvvvvvvvvvvvv
@@ -54,7 +54,6 @@ const updateBankDetails=async(req,res)=>{//////////////////vvvvvvvvvvvvvvvvvvv
     if(!User.find())
         return res.status(404).send("There are no users ")
     const bankDetails = await BankDetails.findById(id).exec()
-    
     if (!bankDetails)
         return res.status(400).send("etails is not exists")
     if(student)

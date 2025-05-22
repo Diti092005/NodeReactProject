@@ -11,7 +11,6 @@ import Contributions from './components/body/contributions/ShowContributions';
 import StudentNav from './components/header/StudentNav';
 import Home from './components/body/Home';
 import ShowMSDetails from './components/body/msDetails/ShowMSDetails';
-import User from './components/body/users/User';
 import CRStatus from './components/body/crStatus/CRStatus';
 import CreateContribution from './components/body/contributions/CreateContribution';
 import PaymentPage from './components/body/contributions/PaymentPage';
@@ -41,11 +40,10 @@ function App() {
             <Route path='/' element={<Login />} />
           {/* <Route path='/login' element={<Login />} /> */}
             <Route path='/logOut' element={<LogOut />} />
-            <Route path='/students' element={<Students />} />
+            {/* <Route path='/students' element={<Students />} /> */}
             <Route path='/cashregisterstatus' element={<CRStatus />} />
             <Route path='/contribution' element={<Contributions />} />
             <Route path='/home' element={<Home />} />
-            <Route path='/user' element={<User />} />
             <Route path='/paymentPage' element={<PaymentPage />} />
             <Route path='/showMSDetails' element={<ShowMSDetails />} />
             <Route path='/studentDetails' element={<StudentDetails />} />

@@ -4,7 +4,7 @@ const CashRegisterStatus = require("../models/Cash_Register_Status")
 const getAllCashRegisterStatus = async (req, res) => {//vvvvvvvvvvvvvvvvvv
     const cashregistersatuses = await CashRegisterStatus.find().lean()
     if (!cashregistersatuses?.length) {
-        res.json([])
+        return res.json([])
     }
     res.json(cashregistersatuses)
 }

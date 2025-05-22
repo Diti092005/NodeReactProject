@@ -28,10 +28,10 @@ export default function Users() {
     const [user, setUser] = useState();
     const [add, setAdd] = useState(false);
 
-    const [studentDialog, setStudentDialog] = useState(false);
+    const [userDialog, setUserDialog] = useState(false);
     const [submitted, setSubmitted] = useState(false);
-    const [deleteStudentDialog, setDeleteStudentDialog] = useState(false);
-    const [selectedStudents, setselectedStudents] = useState(null);
+    const [deleteUserDialog, setDeleteUserDialog] = useState(false);
+    const [selectedUsers, setselectedUsers] = useState(null);
     const [isUpdate, setIsUpdate] = useState(false)
     const [roles] = useState(['Student', 'Donor', 'Admin']);
     const { token, role } = useSelector((state) => state.token);
@@ -56,9 +56,14 @@ export default function Users() {
         const res = await axios.get("http://localhost:1111/api/user",
             { headers: { Authorization: `Bearer ${token}` } })
         setUsers(res.data)
+        console.log(users);
+        
+        setSelectedRole(selectedRole)
     }
     useEffect(() => {
         getUsers();
+        setSelectedRole(roles[0])
+
     }, []);
 
     useEffect(() => {
@@ -72,14 +77,14 @@ export default function Users() {
             setFilterdUsers(users.filter(u => u.role === selectedRole))
         else
             setFilterdUsers(users)
-    }, [selectedRole]);
+    }, [users,selectedRole]);
 
 
     const onRowEditComplete = (e) => {
-        let _students = [...users];
+        let _users = [...users];
         let { newData, index } = e;
-        _students[index] = newData;
-        setUsers(_students);
+        _users[index] = newData;
+        setUsers(_users);
     };
     // const dateEditor = (options) => {
     //     //const [date, setDate] = useState(options.value);
@@ -123,16 +128,16 @@ export default function Users() {
         getUsers();
     };
 
-    const editStudent = (user) => {
+    const editUser = (user) => {
         setUser(user);
-        setStudentDialog(true);
+        setUserDialog(true);
     };
 
     const hideDialog = () => {
         setSubmitted(false);
-        setStudentDialog(false);
+        setUserDialog(false);
     };
-    const confirmDeleteStudent = async (user) => {
+    const confirmDeleteUser = async (user) => {
         if (window.confirm("Are you sure you want to delete this record?")) {
             {
                 const res = await axios.delete(`http://localhost:1111/api/user/${user._id}`,
@@ -146,20 +151,20 @@ export default function Users() {
     const actionBodyTemplate = (rowData) => {
         return (
             <React.Fragment>
-                <Button icon="pi pi-pencil" rounded outlined className="mr-2" onClick={() => { setUser(rowData); editStudent(rowData) }} />
-                <Button icon="pi pi-trash" rounded outlined severity="danger" onClick={() => confirmDeleteStudent(rowData)} />
+                <Button icon="pi pi-pencil" rounded outlined className="mr-2" onClick={() => { setUser(rowData); editUser(rowData) }} />
+                <Button icon="pi pi-trash" rounded outlined severity="danger" onClick={() => confirmDeleteUser(rowData)} />
             </React.Fragment>
         );
     };
-    const hideDeleteStudentsDialog = () => {
-        setDeleteStudentDialog(false);
+    const hideDeleteUsersDialog = () => {
+        setDeleteUserDialog(false);
     };
 
     const openNew = (rowdata) => {
         setAdd(true);
 
         setSubmitted(false);
-        setStudentDialog(true);
+        setUserDialog(true);
     };
     const exportCSV = () => {
         dt.current.exportCSV();
@@ -181,11 +186,12 @@ export default function Users() {
             <div className="flex flex-wrap gap-2">
                 <Button label="New" icon="pi pi-plus" severity="success" onClick={openNew} />
                 <Dropdown
+                placeholder={selectedRole}
                     value={selectedRole}
                     options={[{ label: "All", value: null }, ...roles.map(r => ({ label: r, value: r }))]}
                     onChange={e => setSelectedRole(e.value)}
                     className="w-12rem ml-3"
-                    defaultValue={"All"}
+                    defaultValue={roles[0]}
                 />
             </div>
         );
@@ -212,20 +218,20 @@ export default function Users() {
                 <Column body={actionBodyTemplate} exportable={false} style={{ minWidth: '12rem' }}></Column>
             </DataTable>
 
-            <Dialog visible={deleteStudentDialog} style={{ width: '450px' }} header="Confirm" modal footer={
+            <Dialog visible={deleteUserDialog} style={{ width: '450px' }} header="Confirm" modal footer={
                 <React.Fragment>
-                    <Button label="No" icon="pi pi-times" className="p-button-text" onClick={hideDeleteStudentsDialog} />
-                    <Button label="Yes" icon="pi pi-check" className="p-button-text" onClick={() => { handleDelete(user); hideDeleteStudentsDialog(); }} />
+                    <Button label="No" icon="pi pi-times" className="p-button-text" onClick={hideDeleteUsersDialog} />
+                    <Button label="Yes" icon="pi pi-check" className="p-button-text" onClick={() => { handleDelete(user); hideDeleteUsersDialog(); }} />
                 </React.Fragment>
-            } onHide={hideDeleteStudentsDialog}>
+            } onHide={hideDeleteUsersDialog}>
                 {/* <div className="confirmation-content">
                     <i className="pi pi-exclamation-triangle" style={{ fontSize: '2rem' }} />
                     {user && (<span>Are you sure you want to delete <b>{user.fullname}</b>?</span>)}
                 </div> */}
             </Dialog>
 
-            {user ? <UserForm setStudent={setUser} student={user} setStudentDialog={setStudentDialog} getStudents={getUsers} studentDialog={studentDialog}></UserForm> : <></>}
-            {add ? <UserForm setStudentDialog={setStudentDialog} getStudents={getUsers} studentDialog={studentDialog} setAdd={setAdd} ></UserForm> : <></>}
+            {user ? <UserForm setStudent={setUser} student={user} setStudentDialog={setUserDialog} getStudents={getUsers} studentDialog={userDialog}></UserForm> : <></>}
+            {add ? <UserForm setStudentDialog={setUserDialog} getStudents={getUsers} studentDialog={userDialog} setAdd={setAdd} ></UserForm> : <></>}
 
         </div>
     );

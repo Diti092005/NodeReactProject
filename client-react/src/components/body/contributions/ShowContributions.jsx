@@ -46,13 +46,13 @@ const Contributions = () => {
                 <Button icon="pi pi-pencil" onClick={() => {
                     const contribDate = new Date(rowData.date);
                     const now = new Date();
-                    if (contribDate.getMonth()!== now.getMonth() || contribDate.getFullYear() !== now.getFullYear()) {
+                    if (contribDate.getMonth() !== now.getMonth() || contribDate.getFullYear() !== now.getFullYear()) {
                         alert("You can't delete contributions from previous months!");
                         return;
                     }
                     else {
                         console.log(rowData);
-                        
+
                         setContribution(rowData)
                         setVisibleUpdate(true)
                     }
@@ -81,8 +81,8 @@ const Contributions = () => {
         <Toolbar className="mb-4" left={leftToolbarTemplate} ></Toolbar>
         <div className="card">
             <DataTable value={contributions} tableStyle={{ minWidth: '50rem' }}>
-                {/* <Column field="donor" header="donor.fullname"></Column> */}
-                <Column field="date" header="Date"></Column>
+                  <Column field="donor.fullname" header="Donor"></Column>
+                               <Column field="date" header="Date"></Column>
                 <Column field="sumContribution" header="Contribution Sum"></Column>
                 <Column header="DELETE" body={deleteButton}></Column>
                 <Column header="UPDATE" body={updateButton}></Column>

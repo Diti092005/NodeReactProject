@@ -1,23 +1,26 @@
 const { default: mongoose } = require("mongoose")
 const User = require("../models/User")
-const bcrypt=require("bcrypt")
+const bcrypt = require("bcrypt")
 const getAllUsers = async (req, res) => {//vvvvvvvvvvv
     const users = await User.find().lean()
     if (!users?.length) {
-         res.json([])
-        }
+      return res.json([])
+    }
 
     res.json(users)
 }
 const getAllStudents = async (req, res) => {//vvvvvvvvvvv
-    const students = await User.find({role:"Student"}).lean()
+    const students = await User.find({ role: "Student" }).lean()
     if (!students?.length) {
-        res.json([])    }
+        return res.json([])
+    }
     res.json(students)
 }
 const getAllDonors = async (req, res) => {//vvvvvvvvvvvvvvvvvv
-    const donors = await User.find({role:"Donor"}).lean()
-    
+    const donors = await User.find({ role: "Donor" }).lean()
+    if (!donors?.length) {
+        return res.json([])
+    }
     res.json(donors)
 }
 
@@ -37,8 +40,8 @@ const getUserById = async (req, res) => {//vvvvvvvvvvvvvvv
     res.json(user)
 }
 
-const addUser=async (req,res)=>{
-    const { userId, password, fullname, email, phone, city,buildingNumber,street, birthDate, active, role } = req.body
+const addUser = async (req, res) => {
+    const { userId, password, fullname, email, phone, city, buildingNumber, street, birthDate, active, role } = req.body
     if (!userId || !password || !fullname || !role) {
         return res.status(400).json({ message: 'userId, role, password and fullname are required' })
     }
@@ -46,12 +49,10 @@ const addUser=async (req,res)=>{
     if (duplicate) {
         return res.status(409).json({ message: "Duplicate user id" })
     }
-    if (role!== 'Donor' && role !== 'Admin' && role !== 'Student')
+    if (role !== 'Donor' && role !== 'Admin' && role !== 'Student')
         return res.status(400).send("role must be User or Donor or Admin!!")
     const hashedPassword = await bcrypt.hash(password, 10)
-    console.log(hashedPassword);
-
-    const userObject = { userId, password: hashedPassword, fullname, email, phone, address:{city,street,buildingNumber}, birthDate, active, role }
+    const userObject = { userId, password: hashedPassword, fullname, email, phone, address: { city, street, buildingNumber }, birthDate, active, role }
     const user = await User.create(userObject)
     if (user) { // Created
         return res.status(201).json({
@@ -74,13 +75,11 @@ const updateUser = async (req, res) => {////vvvvvvvvvvvvv
         return res.status(404).json({ message: 'No users found' })
     }
     const user = await User.findById(id).exec()
-
     if (!user)
         return res.status(400).send("user is not exists")
     if (userId) {
-        
         const existingUser = await User.findOne({ userId });
-        if (existingUser && user.userId!=userId) {
+        if (existingUser && user.userId != userId) {
             return res.status(400).send("User with same userId already exists");
         }
         user.userId = userId
@@ -127,4 +126,4 @@ const deleteUserById = async (req, res) => {//vvvvvvvvvvvvvvv
     res.send(result)
 }
 
-module.exports = { getAllUsers, getUserById, updateUser, deleteUserById,getAllDonors,getAllStudents,addUser }
+module.exports = { getAllUsers, getUserById, updateUser, deleteUserById, getAllDonors, getAllStudents, addUser }

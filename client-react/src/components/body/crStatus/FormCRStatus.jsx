@@ -33,6 +33,7 @@ const FormCRStatus=(props)=>{
     const { control, formState: { errors }, handleSubmit, reset } = useForm({ defaultValues });
 
     const onSubmit = async (data) => {
+        data.date=new Date()
         if (data.sumPerAction >= 0 ) {
             if(data._id === 0) {
             const res = await axios.post("http://localhost:1111/api/cashRegisterStatus", data,
@@ -79,7 +80,7 @@ const FormCRStatus=(props)=>{
             <form onSubmit={handleSubmit(onSubmit)}></form>
             <div className="flex justify-content-center">
                 <div className="card">
-                    <h5 className="text-center">Form CRStatus</h5>
+                    <h5 className="text-center">Add Expense</h5>
                     <form onSubmit={handleSubmit(onSubmit)} className="p-fluid">
                         <div className="field">
                             <div className="inline-flex flex-column gap-2">
@@ -88,19 +89,7 @@ const FormCRStatus=(props)=>{
                                     <InputText type="number" id={field.name} {...field} autoFocus className={classNames({ 'p-invalid': fieldState.invalid })} />
                                 )} /> {getFormErrorMessage('sumPerAction')}</div>
                         </div>
-                        <div className="field">
-                            <div className="inline-flex flex-column gap-2">
-                                <label htmlFor="MaximumNumberOfHours" className={classNames({ 'p-error': errors.name })}>Maximum Number Of Hours*</label>
-                                <Controller name="MaximumNumberOfHours" control={control} rules={{ required: 'setSumPerHour is required.' }} render={({ field, fieldState }) => (
-                                    <InputText type="number" id={field.name} {...field} autoFocus className={classNames({ 'p-invalid': fieldState.invalid })} />
-                                )} /> {getFormErrorMessage('MaximumNumberOfHours')}</div></div>
-                        <div className="field">
-                            <div className="inline-flex flex-column gap-2">
-                                <label htmlFor="date" className={classNames({ 'p-error': errors.name })}>Date*</label>
-                                <Controller name="date" control={control} rules={{ required: 'date is required.' }} render={({ field, fieldState }) => (
-                                    <Calendar id={field.name} {...field} autoFocus className={classNames({ 'p-invalid': fieldState.invalid })} />
-                                )} /> {getFormErrorMessage('date')}</div>
-                        </div><Button type="submit" label="Submit" className="mt-2" />
+                        <Button type="submit" label="Submit" className="mt-2" />
                         <Button type="button" label="Cancel" className="mt-2" onClick={()=>{props.setVisible(false)}} />
                     </form>
                 </div>

@@ -30,23 +30,26 @@ const UserForm = ({ studentDialog, setStudentDialog, getStudents, student, setAd
     const { control, formState: { errors }, handleSubmit, reset } = useForm({ defaultValues });
 
     const onSubmit = async (data) => {
-        data = { ...data, role: "Student" }
         if (student?._id) {
             console.log(student);
             const res = await axios.put("http://localhost:1111/api/user",
                 data,
                 { headers: { Authorization: `Bearer ${token}` } }
             )
-            getStudents()
         }
         else {
+            console.log(data);
+            
             const res = await axios.post("http://localhost:1111/api/user",
                 data,
                 { headers: { Authorization: `Bearer ${token}` } }
             )
-            getStudents()
+            
         }
         hideDialog()
+
+        getStudents()
+
         if (updateTheUser)
             updateTheUser()
         if (getStudents)
@@ -171,15 +174,14 @@ const UserForm = ({ studentDialog, setStudentDialog, getStudents, student, setAd
                                 <label htmlFor="street" className={classNames({ 'p-error': errors.name })}>Street</label>
                             </span>
                         </div>
-                    {role==="Admin"&&<div className="field">
-                        <span className="p-float-label">
-                            <Controller name="role" control={control} render={({ field, fieldState }) => (
-                                <Dropdown id={field.role} required {...field} options={roleOptions} autoFocus className={classNames({ 'p-invalid': fieldState.invalid })} 
-                                />
-                            )} />
-                            <label htmlFor="role" className={classNames({ 'p-error': errors.name })}>Role*</label>
-                        </span>
-                    </div>}
+                        {role === "Admin" && <div className="field">
+                            <span className="p-float-label">
+                                <Controller name="role" control={control} render={({ field, fieldState }) => (
+                                    <Dropdown id={field.role} required {...field} options={roleOptions} autoFocus className={classNames({ 'p-invalid': fieldState.invalid })}
+                                    />
+                                )} />
+                                <label htmlFor="role" className={classNames({ 'p-error': errors.name })}>Role*</label>
+                            </span></div>}
                         <div className="field">
                             <span className="p-float-label">
                                 <Controller name="numOfBuilding" control={control} render={({ field, fieldState }) => (
