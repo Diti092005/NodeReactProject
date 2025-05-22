@@ -47,9 +47,6 @@ const UserForm = ({ studentDialog, setStudentDialog, getStudents, student, setAd
             
         }
         hideDialog()
-
-        getStudents()
-
         if (updateTheUser)
             updateTheUser()
         if (getStudents)
