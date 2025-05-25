@@ -2,19 +2,29 @@ const Cash_Register_Status = require("../models/Cash_Register_Status");
 const monthlyScholarshipDetailsSchema = require("../models/Monthly_scholarship_details");
 const StudentScholarship = require("../models/Student_Scholarship");
 const Contribution = require("../models/Contribution");
+const User = require("../models/User");
 
 const addStudentScholarshipOnceAMonthAndUpdateCRS = async (req, res) => {
     try {
         const students = await User.find({ role: "Student" }).lean();
         if (!students?.length) return res.json([]);
 
-        // חישוב תחילת וסוף החודש הקודם
-        const startOfMonth = new Date();
-        startOfMonth.setMonth(startOfMonth.getMonth() - 1); // החודש הקודם
-        startOfMonth.setDate(1); // היום הראשון של החודש הקודם
+        // // חישוב תחילת וסוף החודש הקודם
+        // const startOfMonth = new Date();
+        // startOfMonth.setMonth(startOfMonth.getMonth() - 1); // החודש הקודם
+        // startOfMonth.setDate(1); // היום הראשון של החודש הקודם
 
+        // const endOfMonth = new Date();
+        // endOfMonth.setDate(0); // היום האחרון של החודש הקודם
+        //check
+        const startOfMonth = new Date();
+        startOfMonth.setDate(1); // היום הראשון של החודש
+        console.log("Start of Month:", startOfMonth);
+        
         const endOfMonth = new Date();
-        endOfMonth.setDate(0); // היום האחרון של החודש הקודם
+        endOfMonth.setMonth(endOfMonth.getMonth() + 1); // היום הראשון של החודש הבא
+        endOfMonth.setDate(0); // היום האחרון של החודש הנוכחי
+        console.log("End of Month:", endOfMonth);
 
         const moneyForHour = await monthlyScholarshipDetailsSchema
             .findOne({
@@ -24,7 +34,7 @@ const addStudentScholarshipOnceAMonthAndUpdateCRS = async (req, res) => {
                 },
             })
             .lean()
-            .then((doc) => doc?.sumMoney);
+            .then((doc) => doc?.sumPerHour);
 
         if (!moneyForHour) return res.status(404).send("No money found");
 
@@ -70,15 +80,22 @@ const addStudentScholarshipOnceAMonthAndUpdateCRS = async (req, res) => {
 
 const addMonthlyContributionsToCRS = async (req, res) => {
     try {
-        // חישוב תחילת וסוף החודש הנוכחי
-        // חישוב תחילת וסוף החודש הקודם
+        // // חישוב תחילת וסוף החודש הקודם
+        // const startOfMonth = new Date();
+        // startOfMonth.setMonth(startOfMonth.getMonth() - 1); // החודש הקודם
+        // startOfMonth.setDate(1); // היום הראשון של החודש הקודם
+
+        // const endOfMonth = new Date();
+        // endOfMonth.setDate(0); // היום האחרון של החודש הקודם
+        //check
         const startOfMonth = new Date();
-        startOfMonth.setMonth(startOfMonth.getMonth() - 1); // החודש הקודם
-        startOfMonth.setDate(1); // היום הראשון של החודש הקודם
-
+        startOfMonth.setDate(1); // היום הראשון של החודש
+        console.log("Start of Month:", startOfMonth);
+        
         const endOfMonth = new Date();
-        endOfMonth.setDate(0); // היום האחרון של החודש הקודם
-
+        endOfMonth.setMonth(endOfMonth.getMonth() + 1); // היום הראשון של החודש הבא
+        endOfMonth.setDate(0); // היום האחרון של החודש הנוכחי
+        console.log("End of Month:", endOfMonth);
         // שליפת סך התרומות עבור החודש הנוכחי
         const totalDonations = await Contribution.aggregate([
             {

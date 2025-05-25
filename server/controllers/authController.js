@@ -4,14 +4,9 @@ const User = require("../models/User")
 //const { JsonWebTokenError } = require("jsonwebtoken")
 const login = async (req, res) => {
     const { password, userId } = req.body
-    // console.log(userId);//to change/////////////////////////////////////////////////////////////////////
-    // if (!userId || !password) {
-    //     return res.status(400).json({ message: 'userId and password are required' })
-    // }
-    // const users = await User.find().lean()
-    // if (!users?.length) {
-    //     return res.status(404).json({ message: 'No users found' })
-    // }
+    if (!userId || !password) {
+        return res.status(400).json({ message: 'userId and password are required' })
+    }
     const foundUser = await User.findOne({ userId }).lean()
 
     if (!foundUser || !foundUser.active) {

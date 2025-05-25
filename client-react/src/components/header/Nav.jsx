@@ -5,24 +5,17 @@ const Nav=()=>{
     const {user}=useSelector(state=>state.token)
     const navigate=useNavigate()
     const items = [
-        {
-            label: 'Home',
-            icon: 'pi pi-home',
-            command: () => {
-                navigate('./home')
-            }
-        },
         user&&
         {
             label: 'LogOut',
-            icon: 'pi pi-bars',
+            icon: 'pi pi-arrow-circle-left',
             command: () => {
                 navigate('./logOut')
             }
         },
         {
             label: 'Cash Register Status',
-            icon: 'pi pi-bars',
+            icon: 'pi pi-credit-card',
             command: () => {
                 navigate('./cashregisterstatus')
             }
@@ -36,31 +29,25 @@ const Nav=()=>{
         // },
         {
             label: 'Users',
-            icon: 'pi pi-user',
+            icon: 'pi pi-users',
             command: () => {
                 navigate('./users')
             }
         },
         {
             label: 'Contribution',
-            icon: 'pi pi-user',
+            icon: 'pi pi-wallet',
             command: () => {
                 navigate('./contribution')
             }
         },
         {
             label: 'ShowDetailsMonthlyScholarship',
-            icon: 'pi pi-user',
+            icon: 'pi pi-file',
             command: () => {
                 navigate('./showMSDetails')
             }
-        },user===null&&{
-            label: 'Login',
-            icon: 'pi pi-check',
-            command: () => {
-                navigate('./login')
-            }
-        },]
+        }]
     return(
         <>
          <Menubar  model={items} />

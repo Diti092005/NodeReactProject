@@ -57,7 +57,7 @@ export default function Users() {
             { headers: { Authorization: `Bearer ${token}` } })
         setUsers(res.data)
         console.log(users);
-        
+
         setSelectedRole(selectedRole)
     }
     useEffect(() => {
@@ -77,7 +77,7 @@ export default function Users() {
             setFilterdUsers(users.filter(u => u.role === selectedRole))
         else
             setFilterdUsers(users)
-    }, [users,selectedRole]);
+    }, [users, selectedRole]);
 
 
     const onRowEditComplete = (e) => {
@@ -118,10 +118,26 @@ export default function Users() {
     //     );
     // };
 
-    const roleBodyTemplate = (rowData) => {
-        return <Tag value={rowData.role} ></Tag>;
+    const getRoleTagClass = (role) => {
+        switch (role) {
+            case 'Admin':
+                return { backgroundColor: '#B3E5FC', color: '#01579B' }; 
+            case 'Donor':
+                return {  backgroundColor: '#FFF8E1', color: '#222' };   
+            case 'Student':
+                return {background: '#A8E6CF', color: '#1a4d1a'};   
+            default:
+                return {};
+        }
     };
 
+
+
+    const roleBodyTemplate = (rowData) => {
+        return (
+            <Tag value={rowData.role} style={getRoleTagClass(rowData.role)} />
+        );
+    };
     const handleDelete = async (rowData) => {
         const res = await axios.delete(`http://localhost:1111/api/user/${rowData._id}`,
             { headers: { Authorization: `Bearer ${token}` } })
@@ -186,7 +202,7 @@ export default function Users() {
             <div className="flex flex-wrap gap-2">
                 <Button label="New" icon="pi pi-plus" severity="success" onClick={openNew} />
                 <Dropdown
-                placeholder={selectedRole}
+                    placeholder={selectedRole}
                     value={selectedRole}
                     options={[{ label: "All", value: null }, ...roles.map(r => ({ label: r, value: r }))]}
                     onChange={e => setSelectedRole(e.value)}
@@ -198,7 +214,7 @@ export default function Users() {
     };
 
     const rightToolbarTemplate = () => {
-          return  <Button label="Export" icon="pi pi-download" iconPos="right" className="p-button-help" onClick={exportCSV} />
+        return <Button label="Export" icon="pi pi-download" iconPos="right" className="p-button-help" onClick={exportCSV} />
     };
     return (
 
@@ -214,21 +230,21 @@ export default function Users() {
                 <Column field="phone" header="Phone" style={{ width: '10%' }}></Column>
                 <Column field="address" header="Address" body={addressBodyTemplate} style={{ width: '10%' }}></Column>
                 <Column field="birthDate" header="BirthDate" body={birthDateBodyTemplate} style={{ width: '30%' }}></Column>
-                <Column field="role" header="Role" body={roleBodyTemplate} style={{ width: '10%' }}></Column>
+                <Column field="role" header="Role" body={roleBodyTemplate} ></Column>
                 <Column body={actionBodyTemplate} exportable={false} style={{ minWidth: '12rem' }}></Column>
             </DataTable>
 
-            <Dialog visible={deleteUserDialog} style={{ width: '450px' }} header="Confirm" modal footer={
+            {/* <Dialog visible={deleteUserDialog} style={{ width: '450px' }} header="Confirm" modal footer={
                 <React.Fragment>
                     <Button label="No" icon="pi pi-times" className="p-button-text" onClick={hideDeleteUsersDialog} />
                     <Button label="Yes" icon="pi pi-check" className="p-button-text" onClick={() => { handleDelete(user); hideDeleteUsersDialog(); }} />
                 </React.Fragment>
-            } onHide={hideDeleteUsersDialog}>
-                {/* <div className="confirmation-content">
+            } onHide={hideDeleteUsersDialog}> */}
+            {/* <div className="confirmation-content">
                     <i className="pi pi-exclamation-triangle" style={{ fontSize: '2rem' }} />
                     {user && (<span>Are you sure you want to delete <b>{user.fullname}</b>?</span>)}
                 </div> */}
-            </Dialog>
+            {/* </Dialog> */}
 
             {user ? <UserForm setStudent={setUser} student={user} setStudentDialog={setUserDialog} getStudents={getUsers} studentDialog={userDialog}></UserForm> : <></>}
             {add ? <UserForm setStudentDialog={setUserDialog} getStudents={getUsers} studentDialog={userDialog} setAdd={setAdd} ></UserForm> : <></>}

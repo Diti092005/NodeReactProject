@@ -81,7 +81,7 @@ const UserForm = ({ studentDialog, setStudentDialog, getStudents, student, setAd
     }, [])
     return (
         <>
-            <Dialog visible={studentDialog} style={{ width: '32rem' }} breakpoints={{ '960px': '75vw', '641px': '90vw' }} header="student Details" modal className="p-fluid" footer={studentDialogFooter} onHide={() => { hideDialog() }}>
+            <Dialog visible={studentDialog} style={{ width: '32rem' }} breakpoints={{ '960px': '75vw', '641px': '90vw' }} header="User Details" modal className="p-fluid" footer={studentDialogFooter} onHide={() => { hideDialog() }}>
                 <div className="field">
 
                     <form onSubmit={handleSubmit(onSubmit)} className="p-fluid">

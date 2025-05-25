@@ -24,22 +24,17 @@ export default function Login() {
             dispatch(setUser(res.data.user));
             dispatch(setRole(res.data.role));
             dispatch(setToken(res.data.accessToken));
-            if(res.status===200){
-                navigate('./home')
-            }
-            // if(res.data.role.find((e)=>{return e==="Admin"})){
-            //     navigate('./user'); //
-            // }
 
             if (res.data.role.includes("Admin")) {
-                navigate('./user'); //
+                navigate('../users'); //
             }
-            // if(res.data.userInfo.roles.find((e)=>{return e==="Student"})){
-            //     navigate('./student'); 
-            // }
-            // if(res.data.userInfo.roles.find((e)=>{return e==="Donor"})){
-            //     navigate('./donor'); 
-            // }
+            if (res.data.role.includes("Donor")) {
+                navigate('../contributionDonor'); //
+            }
+            if(res.data.role.includes("Student"))
+                {
+                    navigate('../studentDetails')
+                }
             
         } catch (error) {
             console.error('Login error:', error);

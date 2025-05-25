@@ -9,13 +9,11 @@ import LogOut from './components/features/auth/logOut';
 import { useDispatch, useSelector } from 'react-redux';
 import Contributions from './components/body/contributions/ShowContributions';
 import StudentNav from './components/header/StudentNav';
-import Home from './components/body/Home';
 import ShowMSDetails from './components/body/msDetails/ShowMSDetails';
 import CRStatus from './components/body/crStatus/CRStatus';
 import CreateContribution from './components/body/contributions/CreateContribution';
 import PaymentPage from './components/body/contributions/PaymentPage';
 import StudentDetails from './components/body/users/student/StudentDetails';
-import RecentDonations from './components/body/contributions/RecentDonations';
 import DonorNav from './components/header/DonorNav';import ShowContributionAccToDonor from './components/body/contributions/ShowContributionAccToDonor';
 import Users from './components/body/users/Users';
 ;
@@ -43,7 +41,6 @@ function App() {
             {/* <Route path='/students' element={<Students />} /> */}
             <Route path='/cashregisterstatus' element={<CRStatus />} />
             <Route path='/contribution' element={<Contributions />} />
-            <Route path='/home' element={<Home />} />
             <Route path='/paymentPage' element={<PaymentPage />} />
             <Route path='/showMSDetails' element={<ShowMSDetails />} />
             <Route path='/studentDetails' element={<StudentDetails />} />
@@ -66,7 +63,6 @@ function App() {
                 {/* <Route path="/homeDonor" element={<HomeDonor />} /> */}
                 <Route path="/addContribution" element={<CreateContribution />} />
                 <Route path="/paymentPage" element={<PaymentPage />} />
-                <Route path="/recentDonations" element={<RecentDonations />} />
               </Routes>
               :
               <Routes>

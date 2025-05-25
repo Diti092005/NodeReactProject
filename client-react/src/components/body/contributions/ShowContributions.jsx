@@ -52,7 +52,7 @@ const Contributions = () => {
                     }
                     else {
                         console.log(rowData);
-
+                        
                         setContribution(rowData)
                         setVisibleUpdate(true)
                     }

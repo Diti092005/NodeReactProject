@@ -6,17 +6,10 @@ const StudentNav = () => {
     const {user}=useSelector(state=>state.token)
 
     const items = [
-        {
-            label: 'Home',
-            icon: 'pi pi-home',
-            command: () => {
-                navigate('./home')
-            }
-        },
         user&&
         {
             label: 'LogOut',
-            icon: 'pi pi-bars',
+            icon: 'pi pi-arrow-circle-left',
             command: () => {
                 navigate('./logOut')
             }
@@ -27,14 +20,7 @@ const StudentNav = () => {
             command: () => {
                 navigate('./studentDetails')
             }
-        },
-        user===null&&{
-            label: 'Login',
-            icon: 'pi pi-check',
-            command: () => {
-                navigate('./login')
-            }
-        },
+        }
     ]
     return (
         <>
