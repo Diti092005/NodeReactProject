@@ -38,17 +38,23 @@ const CRStatus = () => {
 
     const deleteCRStatus = async (rowData) => {
         if (window.confirm("Are you sure you want to delete this record?")) {
-            const res = await axios.delete(`http://localhost:1111/api/cashRegisterStatus/${rowData._id}`,
-                { headers: { Authorization: `Bearer ${token}` } });
-            getAllCRStatuses();
+            const newDate = new Date(rowData.date)
+            if (newDate.getMonth() === new Date().getMonth()) {
+                const res = await axios.delete(`http://localhost:1111/api/cashRegisterStatus/${rowData._id}`,
+                    { headers: { Authorization: `Bearer ${token}` } });
+                getAllCRStatuses();
+            }
         }
     };
 
     const updateButton = (rowData) => {
         return (
             <Button label="Update" icon="pi pi-pencil" onClick={() => {
+                const newDate = new Date(rowData.date)
+                if (newDate.getMonth() === new Date().getMonth()) {
                 setCRStatus(rowData);
                 setVisible(true);
+                }
             }} ></Button>
         );
     };
@@ -66,9 +72,9 @@ const CRStatus = () => {
         setVisible(true);
     };
     const updateCRStatuses = async () => {
-        const resExpenses = await axios.post("http://localhost:1111/api/hapenOnceAMonth/Expense",{},
+        const resExpenses = await axios.post("http://localhost:1111/api/hapenOnceAMonth/Expense", {},
             { headers: { Authorization: `Bearer ${token}` } });
-        const resIncomes = await axios.post("http://localhost:1111/api/hapenOnceAMonth/Income",{},
+        const resIncomes = await axios.post("http://localhost:1111/api/hapenOnceAMonth/Income", {},
             { headers: { Authorization: `Bearer ${token}` } });
         getAllCRStatuses();
     }
@@ -101,7 +107,7 @@ const CRStatus = () => {
 
     const startContent = (
         <React.Fragment>
-            <Button icon="pi pi-plus" className="mr-2" label="Update Expences & Incoms" iconPos="right" onClick={updateCRStatuses}/>
+            <Button icon="pi pi-plus" className="mr-2" label="Update Expences & Incoms" iconPos="right" onClick={updateCRStatuses} />
             <Button icon="pi pi-plus" className="mr-2" label="Add an Expense" iconPos="right" onClick={createCRStatus} />
             <Button icon="pi pi-print" className="mr-2" onClick={handlePrint} />
             <Button label="Export" icon="pi pi-download" iconPos="right" className="p-button-help" onClick={exportCSV} />

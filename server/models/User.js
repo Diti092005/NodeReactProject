@@ -27,7 +27,7 @@ const userSchema = new mongoose.Schema({
             type: String
         },
         numOfBuilding: {
-            type: String
+            type: Number
         },
         city: {
             type: String

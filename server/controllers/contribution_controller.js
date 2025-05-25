@@ -18,9 +18,6 @@ const addContrbutionByDonorId = async (req, res) => {///////////vvvvvvvvv
     const { donor, date, sumContribution } = req.body
     if (!donor || !date || !sumContribution)
         return res.status(400).send("All fields are required ")
-    // if(!Contribution.find())
-    //     return res.status(404).send("No Donors exist")
-
     const existDonor = await User.findOne({ _id: donor }).lean()
     if (!existDonor)
         return res.status(400).send("Donor is not exist")
@@ -36,7 +33,6 @@ const getAllContrbutions = async (req, res) => {//vvvvvvvvvv
 
 const getContrbutionById = async (req, res) => {//vvvvvvvvv
     const { id } = req.params
-    console.log(id);
     if (!id)
         return res.status(400).send("Id is required")
     if (!mongoose.Types.ObjectId.isValid(id))
@@ -76,21 +72,26 @@ const updateContributionByDonorId = async (req, res) => {
 }
 const updateContribution = async (req, res) => {/////////vvvvvvvvvvvvvvv
     const { id, donor, date, sumContribution } = req.body
-    if (!id)
-        return res.status(400).send("Id is required")
-    if (!mongoose.Types.ObjectId.isValid(id))
-        return res.status(400).send("Not valid id")
-    const contribution = await Contribution.findById(id).exec()
-    if (!contribution)
-        return res.status(400).send("contribution is not exists")
-    if (donor)
-        contribution.donor = donor
-    if (date)
-        contribution.date = date
-    if (sumContribution)
-        contribution.sumContribution = sumContribution
-    const updatedContribution = await contribution.save()
-    res.json(updatedContribution)
+    const newDate = new Date(date)
+    if (newDate.getMonth() === new Date().getMonth()) {
+        if (!id)
+            return res.status(400).send("Id is required")
+        if (!mongoose.Types.ObjectId.isValid(id))
+            return res.status(400).send("Not valid id")
+        const contribution = await Contribution.findById(id).exec()
+        if (!contribution)
+            return res.status(400).send("contribution is not exists")
+        if (donor)
+            contribution.donor = donor
+        if (date)
+            contribution.date = newDate
+        if (sumContribution)
+            contribution.sumContribution = sumContribution
+        const updatedContribution = await contribution.save()
+        return res.json(updatedContribution)
+    }
+   return res.status(400).send("Can't update from last monthes")
+
 }
 const deleteContribution = async (req, res) => {//vvvvvvvvvvvvvvvvvvvv
     const { id } = req.params

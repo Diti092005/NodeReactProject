@@ -25,6 +25,7 @@ app.use("/api/studentScholarship",require("./routers/studentScholarshipRoutes"))
 app.use("/api/hapenOnceAMonth",require("./routers/hapenOnceAMonthRoutes"))
 app.use("/api/user",require("./routers/userRoutes"))
 
+
 app.get("/", (req, res) => {
     res.send("This is the home page")
 })

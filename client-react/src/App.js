@@ -16,6 +16,7 @@ import PaymentPage from './components/body/contributions/PaymentPage';
 import StudentDetails from './components/body/users/student/StudentDetails';
 import DonorNav from './components/header/DonorNav';import ShowContributionAccToDonor from './components/body/contributions/ShowContributionAccToDonor';
 import Users from './components/body/users/Users';
+import ScholarshipForStudent from './components/body/users/student/ScholarshipForStudent';
 ;
 
 
@@ -53,6 +54,7 @@ function App() {
               {/* <Route path='/login' element={<Login />} /> */}
               <Route path='/logOut' element={<LogOut />} />
               <Route path='/studentDetails' element={<StudentDetails />} />
+              <Route path='/scholarshipForStudent' element={<ScholarshipForStudent/>}/>
             </Routes>
             : role === "Donor" ?
               <Routes>

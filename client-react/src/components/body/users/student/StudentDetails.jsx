@@ -53,10 +53,10 @@ export default function StudentDetails() {
                     {user.address?.street && <p>street: {user.address.street}</p>}
                     {user.address?.numOfBuilding && <p>building number: {user.address?.numOfBuilding}</p>}
                     {user.address?.city && <p>city: {user.address?.city}</p>}
-                    {user.address?.birthDate && <p>birthDate: {format(user.birthDate, 'dd/MM/yyyy')}</p>}
+                    {user.birthDate?.birthDate && <p>birthDate: {format(user.birthDate, 'dd/MM/yyyy')}</p>}
                 </p>
             </Card>
-            {editForm ? <UserForm updateTheUser={updateTheUser} setStudent={setStudent} student={student} setStudentDialog={setEditForm} studentDialog={editForm}></UserForm> : <></>}
+            {editForm ? <UserForm updateTheUser={updateTheUser} setUser={setStudent} user={student} setUserDialog={setEditForm} userDialog={editForm}></UserForm> : <></>}
         </div>
     )
 }

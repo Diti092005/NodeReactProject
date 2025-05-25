@@ -156,7 +156,7 @@ export default function Users() {
     const confirmDeleteUser = async (user) => {
         if (window.confirm("Are you sure you want to delete this record?")) {
             {
-                const res = await axios.delete(`http://localhost:1111/api/user/${user._id}`,
+                const res = await axios.put(`http://localhost:1111/api/user/${user._id}`,
                     { headers: { Authorization: `Bearer ${token}` } });
                 getUsers();
             }
@@ -189,8 +189,9 @@ export default function Users() {
     //     setDeleteStudentDialog(true);
     // };
     const addressBodyTemplate = (rowData) => {
-        const { street, city, buildingNumber } = rowData.address || {};
-        return [street, buildingNumber, city].filter(Boolean).join(' ');
+        const { street, city, numOfBuilding } = rowData.address || {};
+       console.log( rowData.address);
+        return [street, numOfBuilding, city].filter(Boolean).join(' ');
     };
     const birthDateBodyTemplate = (rowData) => {
         if (rowData.birthDate)
@@ -246,8 +247,8 @@ export default function Users() {
                 </div> */}
             {/* </Dialog> */}
 
-            {user ? <UserForm setStudent={setUser} student={user} setStudentDialog={setUserDialog} getStudents={getUsers} studentDialog={userDialog}></UserForm> : <></>}
-            {add ? <UserForm setStudentDialog={setUserDialog} getStudents={getUsers} studentDialog={userDialog} setAdd={setAdd} ></UserForm> : <></>}
+            {user ? <UserForm setUser={setUser} user={user} setUserDialog={setUserDialog} getUsers={getUsers} userDialog={userDialog}></UserForm> : <></>}
+            {add ? <UserForm setUserDialog={setUserDialog} getUsers={getUsers} userDialog={userDialog} setAdd={setAdd} ></UserForm> : <></>}
 
         </div>
     );

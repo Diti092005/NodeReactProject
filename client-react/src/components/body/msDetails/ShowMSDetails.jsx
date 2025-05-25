@@ -38,7 +38,6 @@ const ShowMSDetails = () => {
     const deleteMSDetails = async (rowData) => {
         if (window.confirm("Are you sure you want to delete this record?")) {
             {
-                console.log((rowData.date));
                 const newDate = new Date(rowData.date)
                 if (newDate.getMonth() === new Date().getMonth()) {
                     const res = await axios.delete(`http://localhost:1111/api/monthlyScholarshipDetails/${rowData._id}`,
@@ -53,8 +52,11 @@ const ShowMSDetails = () => {
     const updateButton = (rowData) => {
         return (
             <Button label="Update" icon="pi pi-pencil" onClick={() => {
+                const newDate = new Date(rowData.date)
+                if (newDate.getMonth() === new Date().getMonth()) {
                 setMSDetail(rowData);
                 setVisible(true);
+                }
             }} ></Button>
         );
     };

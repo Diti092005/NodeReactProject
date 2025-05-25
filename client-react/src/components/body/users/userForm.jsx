@@ -8,49 +8,51 @@ import axios from 'axios';
 import { useSelector } from 'react-redux';
 import { Calendar } from 'primereact/calendar';
 import { Dropdown } from 'primereact/dropdown';
-const UserForm = ({ studentDialog, setStudentDialog, getStudents, student, setAdd, setStudent, updateTheUser }) => {
+const UserForm = ({ userDialog, setUserDialog, getUsers, user, setAdd, setUser, updateTheUser }) => {
     const [showMessage, setShowMessage] = useState(false);
     const [showMessageError, setShowMessageError] = useState(false);
     const { token, role } = useSelector((state) => state.token);
 
     const [formData, setFormData] = useState();
     const defaultValues = {
-        id: student?._id,
-        fullname: student?.fullname,
-        phone: student?.phone,
-        email: student?.email,
-        city: student?.address?.city || "",
-        street: student?.address?.street || "",
-        buildingNumber: student?.address?.numOfBulding || "",
-        role: student?.role,
-        userId: student?.userId,
-        birthDate: student?.birthDate,
-        role: student?.role || null
+        id: user?._id,
+        fullname: user?.fullname,
+        phone: user?.phone,
+        email: user?.email,
+        city: user?.address?.city || "",
+        street: user?.address?.street || "",
+        numOfBuilding: user?.address?.numOfBuilding || "",
+        role: user?.role || "Donor",
+        userId: user?.userId,
+        birthDate: user?.birthDate,
+        role: user?.role || null
     }
     const { control, formState: { errors }, handleSubmit, reset } = useForm({ defaultValues });
 
     const onSubmit = async (data) => {
-        if (student?._id) {
-            console.log(student);
+        console.log(data);
+        if (user?._id) {
             const res = await axios.put("http://localhost:1111/api/user",
                 data,
-                { headers: { Authorization: `Bearer ${token}` } }
-            )
+                { headers: { Authorization: `Bearer ${token}` } })
+
         }
         else {
-            console.log(data);
-            
+            if (!data.role) {
+                data.role = "Donor"
+            }
             const res = await axios.post("http://localhost:1111/api/user",
                 data,
                 { headers: { Authorization: `Bearer ${token}` } }
             )
-            
+
+
         }
         hideDialog()
         if (updateTheUser)
             updateTheUser()
-        if (getStudents)
-            getStudents()
+        if (getUsers)
+            getUsers()
     }
     const getFormErrorMessage = (name) => {
         return errors[name] && <small className="p-error">{errors[name].message}</small>
@@ -63,25 +65,25 @@ const UserForm = ({ studentDialog, setStudentDialog, getStudents, student, setAd
     );
 
     const hideDialog = () => {
-        if (student) {
-            setStudent(false)
+        if (user) {
+            setUser(false)
         }
         else {
             if (setAdd)
                 setAdd(false)
         }
-        setStudentDialog(false);
+        setUserDialog(false);
     }
     const roleOptions = [
         { label: 'Donor', value: 'Donor' },
         { label: 'Student', value: 'Student' },
     ];
     useEffect(() => {
-        console.log(student);
     }, [])
+    // footer={userDialogFooter}
     return (
         <>
-            <Dialog visible={studentDialog} style={{ width: '32rem' }} breakpoints={{ '960px': '75vw', '641px': '90vw' }} header="User Details" modal className="p-fluid" footer={studentDialogFooter} onHide={() => { hideDialog() }}>
+            <Dialog visible={userDialog} style={{ width: '32rem' }} breakpoints={{ '960px': '75vw', '641px': '90vw' }} header="User Details" modal className="p-fluid" onHide={() => { hideDialog() }}>
                 <div className="field">
 
                     <form onSubmit={handleSubmit(onSubmit)} className="p-fluid">
@@ -103,17 +105,7 @@ const UserForm = ({ studentDialog, setStudentDialog, getStudents, student, setAd
                             </span>
                             {getFormErrorMessage('password')}
                         </div>}
-                        <div className="field">
-                            <span className="p-float-label p-input-icon-right">
-                                {/* <i className="pi pi-envelope" /> */}
-                                <Controller name="email" control={control}
-                                    render={({ field, fieldState }) => (
-                                        <InputText id={field.email} {...field} className={classNames({ 'p-invalid': fieldState.invalid })} />
-                                    )} />
-                                <label htmlFor="email" className={classNames({ 'p-error': !!errors.email })}>Email*</label>
-                            </span>
-                            {getFormErrorMessage('email')}
-                        </div>
+
                         <div className="field">
                             <span className="p-float-label">
                                 <Controller name="userId" control={control} rules={{ required: 'userId is required.' }} render={({ field, fieldState }) => (
@@ -124,26 +116,79 @@ const UserForm = ({ studentDialog, setStudentDialog, getStudents, student, setAd
                             {getFormErrorMessage('username')}
                         </div>
                         <div className="field">
-                            <span className="p-float-label">
-                                <Controller name="phone" control={control} render={({ field, fieldState }) => (
-                                    <InputText id={field.phone} {...field} autoFocus className={classNames({ 'p-invalid': fieldState.invalid })} defaultValue={student?.phone} />
-                                )} />
-                                <label htmlFor="phone" className={classNames({ 'p-error': errors.name })}>Phone</label>
+                            <span className="p-float-label p-input-icon-right">
+                                <Controller
+                                    name="email"
+                                    control={control}
+                                    rules={{
+                                        pattern: {
+                                            value: /^[\w-.]+@([\w-]+\.)+[\w-]{2,}$/,
+                                            message: 'Invalid email address'
+                                        }
+                                    }}
+                                    render={({ field, fieldState }) => (
+                                        <InputText
+                                            id={field.name}
+                                            {...field}
+                                            className={classNames({ 'p-invalid': fieldState.invalid })}
+                                        />
+                                    )}
+                                />
+                                <label htmlFor="email" className={classNames({ 'p-error': !!errors.email })}>Email</label>
                             </span>
+                            {getFormErrorMessage('email')}
+                        </div>
+                        <div className="field">
+                            <span className="p-float-label">
+                                <Controller
+                                    name="phone"
+                                    control={control}
+                                    rules={{
+                                        pattern: {
+                                            value: /^0\d{1,2}-?\d{7}$/,
+                                            message: 'Invalid phone'
+                                        }
+                                    }}
+                                    render={({ field, fieldState }) => (
+                                        <InputText
+                                            id={field.name}
+                                            {...field}
+                                            autoFocus
+                                            className={classNames({ 'p-invalid': fieldState.invalid })}
+                                        />
+                                    )}
+                                />
+                                <label htmlFor="phone" className={classNames({ 'p-error': errors.phone })}>Phone</label>
+                            </span>
+                            {getFormErrorMessage('phone')}
                         </div>
                         <div className="field">
                             <span className="p-float-label">
                                 <Controller
                                     name="birthDate"
                                     control={control}
+                                    rules={{
+                                        validate: value => {
+                                            if (!value) return true
+                                            // Assuming value is a Date object. If string, convert: new Date(value)
+                                            const birth = new Date(value);
+                                            const today = new Date();
+                                            let age = today.getFullYear() - birth.getFullYear();
+                                            const m = today.getMonth() - birth.getMonth();
+                                            if (m < 0 || (m === 0 && today.getDate() < birth.getDate())) {
+                                                age--;
+                                            }
+                                            return age >= 18 ? true : 'You must be at least 18 years old';
+                                        }
+                                    }}
                                     render={({ field, fieldState }) => (
                                         <Calendar
-                                            id={field.birthDate}
+                                            id={field.name}
                                             value={field.value}
                                             onChange={(e) => field.onChange(e.value)}
-                                            dateFormat="dd/mm/yy" // אפשר לשנות לפורמט אחר
+                                            dateFormat="dd/mm/yy"
                                             className={classNames({ 'p-invalid': fieldState.invalid })}
-                                            showIcon // מציג אייקון של לוח שנה
+                                            showIcon
                                         />
                                     )}
                                 />
@@ -151,6 +196,7 @@ const UserForm = ({ studentDialog, setStudentDialog, getStudents, student, setAd
                                     Birth Date
                                 </label>
                             </span>
+                            {getFormErrorMessage('birthDate')}
                         </div>
 
                         <div>address:</div>
@@ -171,7 +217,34 @@ const UserForm = ({ studentDialog, setStudentDialog, getStudents, student, setAd
                                 <label htmlFor="street" className={classNames({ 'p-error': errors.name })}>Street</label>
                             </span>
                         </div>
-                        {role === "Admin" && <div className="field">
+                        <div className="field">
+                            <span className="p-float-label">
+                                <Controller
+                                    name="numOfBuilding"
+                                    control={control}
+                                    rules={{
+                                        pattern: {
+                                            value: /^[0-9]+$/,
+                                            message: 'Building number must be a number'
+                                        }
+                                    }}
+                                    render={({ field, fieldState }) => (
+                                        <InputText
+                                            id={field.name}
+                                            {...field}
+                                            autoFocus
+                                            className={classNames({ 'p-invalid': fieldState.invalid })}
+                                        />
+                                    )}
+                                />
+                                <label htmlFor="numOfBuilding" className={classNames({ 'p-error': !!errors.numOfBuilding })}>
+                                    Building Number
+                                </label>
+                            </span>
+                            {getFormErrorMessage('numOfBuilding')}
+                        </div>
+
+                        {role === "Admin" && defaultValues.role !== "Admin" && <div className="field">
                             <span className="p-float-label">
                                 <Controller name="role" control={control} render={({ field, fieldState }) => (
                                     <Dropdown id={field.role} required {...field} options={roleOptions} autoFocus className={classNames({ 'p-invalid': fieldState.invalid })}
@@ -179,15 +252,6 @@ const UserForm = ({ studentDialog, setStudentDialog, getStudents, student, setAd
                                 )} />
                                 <label htmlFor="role" className={classNames({ 'p-error': errors.name })}>Role*</label>
                             </span></div>}
-                        <div className="field">
-                            <span className="p-float-label">
-                                <Controller name="numOfBuilding" control={control} render={({ field, fieldState }) => (
-                                    <InputText id={field.buildingNumber} {...field} autoFocus className={classNames({ 'p-invalid': fieldState.invalid })} />
-                                )} />
-                                <label htmlFor="numOfBuilding" className={classNames({ 'p-error': errors.name })}>Building Number</label>
-                            </span>
-
-                        </div>
                         <Button type="submit" label="Submit" className="mt-2" />
                     </form>
 

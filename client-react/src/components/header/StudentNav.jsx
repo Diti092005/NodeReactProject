@@ -20,6 +20,13 @@ const StudentNav = () => {
             command: () => {
                 navigate('./studentDetails')
             }
+        },
+        {
+            label: 'ScholarshipForStudent',
+            icon: 'pi pi-user',
+            command: () => {
+                navigate('./scholarshipForStudent')
+            }
         }
     ]
     return (
