@@ -9,6 +9,7 @@ import { Dropdown } from 'primereact/dropdown'; // Dropdown for filtering
 import { useSelector } from "react-redux";
 import { Toolbar } from "primereact/toolbar";
 import FormCRStatus from "./FormCRStatus";
+import { format } from "date-fns";
 
 const CRStatus = () => {
     const { token } = useSelector((state) => state.token);
@@ -37,9 +38,10 @@ const CRStatus = () => {
     };
 
     const deleteCRStatus = async (rowData) => {
-        if (window.confirm("Are you sure you want to delete this record?")) {
-            const newDate = new Date(rowData.date)
-            if (newDate.getMonth() === new Date().getMonth()) {
+
+        const newDate = new Date(rowData.date)
+        if (newDate.getMonth() === new Date().getMonth()&& newDate.getFullYear()===new Date().getFullYear()) {
+            if (window.confirm("Are you sure you want to delete this record?")) {
                 const res = await axios.delete(`http://localhost:1111/api/cashRegisterStatus/${rowData._id}`,
                     { headers: { Authorization: `Bearer ${token}` } });
                 getAllCRStatuses();
@@ -51,9 +53,12 @@ const CRStatus = () => {
         return (
             <Button label="Update" icon="pi pi-pencil" onClick={() => {
                 const newDate = new Date(rowData.date)
-                if (newDate.getMonth() === new Date().getMonth()) {
-                setCRStatus(rowData);
-                setVisible(true);
+                if (newDate.getMonth() === new Date().getMonth()&&newDate.getFullYear()===new Date().getFullYear()) {
+                    setCRStatus(rowData);
+                    setVisible(true);
+                }
+                else{
+                    
                 }
             }} ></Button>
         );
@@ -113,7 +118,11 @@ const CRStatus = () => {
             <Button label="Export" icon="pi pi-download" iconPos="right" className="p-button-help" onClick={exportCSV} />
         </React.Fragment>
     );
-
+    const dateBodyTemplate = (rowData) => {
+        if (rowData.date)
+            return format(rowData.date, 'dd/MM/yyyy')
+        return ""
+    };
     return (
         <>
             <div className="card">
@@ -143,7 +152,7 @@ const CRStatus = () => {
                     <Column field="action" header="Action"></Column>
                     <Column field="sumPerAction" header="SumPerAction"></Column>
                     <Column field="currentSum" header="CurrentSum"></Column>
-                    <Column field="date" header="Date"></Column>
+                    <Column field="date" header="Date" body={dateBodyTemplate}></Column>
                     <Column header="DELETE" body={deleteButton}></Column>
                     <Column header="UPDATE" body={updateButton}></Column>
                 </DataTable>

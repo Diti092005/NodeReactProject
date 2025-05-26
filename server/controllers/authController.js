@@ -8,24 +8,25 @@ const login = async (req, res) => {
         return res.status(400).json({ message: 'userId and password are required' })
     }
     const foundUser = await User.findOne({ userId }).lean()
-
-    if (!foundUser || !foundUser.active) {
+    if (!foundUser)
         return res.status(401).json({ message: 'Unauthorized' })
-    }
-     const match = await bcrypt.compare(password, foundUser.password)///////////vvvvvvvvvvv
+
+    // if (!foundUser || !foundUser.active) {///active????????????????
+    //     return res.status(401).json({ message: 'Unauthorized' })
+    // }
+    const match = await bcrypt.compare(password, foundUser.password)///////////vvvvvvvvvvv
 
     if (!match)
         return res.status(401).json({ message: 'Unauthorized' })
-    console.log(foundUser);
-    
+
     const userInfo = {
         _id: foundUser._id, fullname: foundUser.fullname,
-        role:foundUser.role,
+        role: foundUser.role,
         phone: foundUser.phone, address: foundUser.address,
         email: foundUser.email, birthDate: foundUser.birthDate, active: foundUser.active, userId: foundUser.userId
     }
     const accessToken = jwt.sign(userInfo, process.env.ACCESS_TOKEN_SECRET)
-    res.json({ accessToken: accessToken ,user:userInfo,role:foundUser.role})
+    res.json({ accessToken: accessToken, user: userInfo, role: foundUser.role })
 }
 
 const register = async (req, res) => {////vvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvv
@@ -35,7 +36,7 @@ const register = async (req, res) => {////vvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvv
         return res.status(400).json({ message: 'userId, roles, password and fullname are required' })
     }
     const duplicate = await User.findOne({ userId }).lean()
-    if (duplicate) {
+    if (duplicate&&duplicate.active) {
         return res.status(409).json({ message: "Duplicate user id" })
     }
     if (role !== 'Donor' && role !== 'Admin' && role !== 'Student')

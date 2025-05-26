@@ -130,7 +130,7 @@ const addMonthlyContributionsToCRS = async (req, res) => {
             action: "Income",
             sumPerAction: totalIncome,
             date: new Date(),
-            currentSum: currentSum + totalIncome, // עדכון הסכום הנוכחי
+            currentSum: currentSum + totalIncome,
         });
 
         res.json({

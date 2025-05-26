@@ -40,7 +40,6 @@ export default function ScholarshipForStudent() {
     }
     useEffect(() => {
         getScholarships();
-
     }, []);
 
 
@@ -49,13 +48,11 @@ const leftToolbarTemplate = () => {
                 <NumberOfHoursBtn></NumberOfHoursBtn>
         );
     };
-    
-
-
-
-    
-
-   
+    const dateBodyTemplate = (rowData) => {
+        if (rowData.date)
+            return format(rowData.date, 'dd/MM/yyyy')
+        return ""
+    };
     
     return (
 
@@ -65,10 +62,9 @@ const leftToolbarTemplate = () => {
             <Toolbar className="mb-4" left={leftToolbarTemplate} ></Toolbar>
 
             <DataTable ref={dt} value={scholarship} editMode="row" dataKey="id"  tableStyle={{ minWidth: '50rem' }}>
-                <Column field="date" header="date" style={{ width: '10%' }}></Column>
+                <Column field="date" header="date" body={dateBodyTemplate} style={{ width: '10%' }}></Column>
                 <Column field="sumMoney" header="Sum Of Money" style={{ width: '10%' }}></Column>
                 <Column field="numHours" header="Number Hours" style={{ width: '10%' }}></Column>
-                
             </DataTable>
 
            

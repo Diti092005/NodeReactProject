@@ -21,7 +21,6 @@ export default function StudentDetails() {
     const showEditForm = () => {
         setStudent(user)
         setEditForm(true)
-
     };
     const footer = (
         <>
@@ -50,9 +49,9 @@ export default function StudentDetails() {
                     <p>email: {user.email}</p>
                     <p>phone: {user.phone}</p>
                     {user.address && <p>address: </p>}
-                    {user.address?.street && <p>street: {user.address.street}</p>}
-                    {user.address?.numOfBuilding && <p>building number: {user.address?.numOfBuilding}</p>}
                     {user.address?.city && <p>city: {user.address?.city}</p>}
+                    {user.address?.street && <p>street: {user.address.street}</p>}
+                    {user.address?.numOfBuilding ? <p>building number: {user.address?.numOfBuilding}</p>: ''}
                     {user.birthDate?.birthDate && <p>birthDate: {format(user.birthDate, 'dd/MM/yyyy')}</p>}
                 </p>
             </Card>

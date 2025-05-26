@@ -36,7 +36,6 @@ const FormMSDetails = (props) => {
 
     const onSubmit = async (data) => {
         data.date = new Date()
-
         if (data.MaximumNumberOfHours >= minHours && data.MaximumNumberOfHours <= maxHours && data.sumPerHour >= minSumPerHour && data.sumPerHour <= maxSumPerHour) {
             if (data._id === 0) {
                 const res = await axios.post("http://localhost:1111/api/monthlyScholarshipDetails", data,

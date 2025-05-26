@@ -22,10 +22,12 @@ export default function NumberOfHoursBtn() {
     }
     useEffect(() => {
         getCurrentScholarship();
-        if(user.active==false)
+        if (user.active == false)
             setIsActive(false)
     }, []);
-
+    useEffect(() => {
+        getCurrentScholarship();
+    }, [isOpen])
 
     const openForm = () => {
 
@@ -36,9 +38,9 @@ export default function NumberOfHoursBtn() {
 
     return (
         <div className="flex flex-wrap gap-2">
-            {isActive&& currentScholarship === "" ? <Button label="Enter number of hours" icon="pi pi-plus" severity="success" onClick={openForm} /> : <></>}
-            {isActive&&currentScholarship !== "" ? <Button label="Update number of hours" icon="pi pi-pencil" severity="success" onClick={openForm} /> : <></>}            {isOpen && <EnterNumberOfHours setIsOpen={setIsOpen} currentScholarship={currentScholarship} isOpen={isOpen}></EnterNumberOfHours>}
-
+            {isActive && currentScholarship === "" ? <Button label="Enter number of hours" icon="pi pi-plus" severity="success" onClick={openForm} /> : <></>}
+            {isActive && currentScholarship !== "" ? <Button label="Update number of hours" icon="pi pi-pencil" severity="success" onClick={openForm} /> : <></>}
+            {isOpen && <EnterNumberOfHours setIsOpen={setIsOpen} currentScholarship={currentScholarship} isOpen={isOpen} ></EnterNumberOfHours>}
             {currentScholarship && <EnterNumberOfHours setIsOpen={setIsOpen} currentScholarship={currentScholarship} isOpen={isOpen}></EnterNumberOfHours>}        </div>
     )
 }

@@ -43,19 +43,19 @@ const getUserById = async (req, res) => {//vvvvvvvvvvvvvvv
         return res.status(400).send("Id is required")
     if (!mongoose.Types.ObjectId.isValid(id))
         return res.status(400).send("Not valid id")
-    const user = await User.find({ _id: id, active: true }).lean()
+    const user = await User.findOne({ _id: id, active: true }).lean()
     if (!user)
         return res.status(400).send("This user isn't exists")
     res.json(user)
 }
 
-const addUser = async (req, res) => {
+const addUser = async (req, res) => { 
     const { userId, password, fullname, email, phone, city, numOfBuilding, street, birthDate, active, role } = req.body
     if (!userId || !password || !fullname || !role) {
         return res.status(400).json({ message: 'userId, role, password and fullname are required' })
     }
     const duplicate = await User.findOne({ userId }).lean()
-    if (duplicate) {
+    if (duplicate&&duplicate.active) {
         return res.status(409).json({ message: "Duplicate user id" })
     }
     if (role !== 'Donor' && role !== 'Admin' && role !== 'Student')

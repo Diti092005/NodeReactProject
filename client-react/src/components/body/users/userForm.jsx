@@ -24,7 +24,7 @@ const UserForm = ({ userDialog, setUserDialog, getUsers, user, setAdd, setUser, 
         numOfBuilding: user?.address?.numOfBuilding || "",
         role: user?.role || "Donor",
         userId: user?.userId,
-        birthDate: user?.birthDate,
+        birthDate: user?.birthDate? new Date(user.birthDate) : null,
         role: user?.role || null
     }
     const { control, formState: { errors }, handleSubmit, reset } = useForm({ defaultValues });

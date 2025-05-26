@@ -9,6 +9,7 @@ import { Button } from "primereact/button";
 import CreateContribution from "./CreateContribution";
 import { useSelector } from "react-redux";
 import { logOut } from "../../../redux/tokenSlice";
+import { format } from 'date-fns';
 
 const Contributions = () => {
     const [contributions, setContributions] = useState([])
@@ -75,13 +76,18 @@ const Contributions = () => {
             </div>
         );
     };
+    const dateBodyTemplate = (rowData) => {
+        if (rowData.date)
+            return format(rowData.date, 'dd/MM/yyyy')
+        return ""
+    };
     const toast = useRef(null);
     return (<>
         <Toolbar className="mb-4" left={leftToolbarTemplate} ></Toolbar>
         <div className="card">
             <DataTable value={contributions} tableStyle={{ minWidth: '50rem' }}>
-                  <Column field="donor.fullname" header="Donor"></Column>
-                               <Column field="date" header="Date"></Column>
+                <Column field="donor.fullname" header="Donor"></Column>
+                <Column field="date" header="Date" body={dateBodyTemplate}></Column>
                 <Column field="sumContribution" header="Contribution Sum"></Column>
                 <Column header="DELETE" body={deleteButton}></Column>
                 <Column header="UPDATE" body={updateButton}></Column>

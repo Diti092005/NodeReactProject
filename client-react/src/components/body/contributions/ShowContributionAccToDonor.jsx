@@ -6,6 +6,7 @@ import { Toolbar } from 'primereact/toolbar';
 import { Button } from "primereact/button";
 import { useSelector } from "react-redux";
 import CreateContribution from "./CreateContribution";
+import { format } from 'date-fns';
 
 const ShowContributionAccToDonor = () => {
     const [contributions, setContributions] = useState([]);
@@ -29,8 +30,16 @@ const ShowContributionAccToDonor = () => {
     useEffect(() => {
         getContributionsByDonor();
     }, []);
-
+    const dateBodyTemplate = (rowData) => {
+        if (rowData.date)
+            return format(rowData.date, 'dd/MM/yyyy')
+        return ""
+    };
     const deleteContribution = async (rowData) => {
+        if (!user.active) {
+            alert("You can't delete contributions when you are not active!");
+            return;
+        }
         const contribDate = new Date(rowData.date);
         const now = new Date();
         if (contribDate.getMonth() !== now.getMonth() || contribDate.getFullYear() !== now.getFullYear()) {
@@ -70,7 +79,6 @@ const ShowContributionAccToDonor = () => {
                         return;
                     }
                     else {
-                        console.log(rowData.date);
                         setContribution(rowData)
                         setVisibleUpdate(true)
                     }
@@ -83,13 +91,13 @@ const ShowContributionAccToDonor = () => {
             <Toolbar className="mb-4" left={leftToolbarTemplate}></Toolbar>
             <div className="card">
                 <DataTable value={contributions} tableStyle={{ minWidth: '50rem' }}>
-                    <Column field="date" header="Date"></Column>
+                    <Column field="date" header="Date" body={dateBodyTemplate}></Column>
                     <Column field="sumContribution" header="Contribution Sum"></Column>
-                    <Column header="DELETE" body={deleteButton}></Column>
-                    <Column header="UPDATE" body={updateButton}></Column>
+                    {user.active && <Column header="DELETE" body={deleteButton}></Column>}
+                    {user.active && <Column header="UPDATE" body={updateButton}></Column>}
                 </DataTable>
-                <CreateContribution visible={visibleAdd} setVisible={setVisibleAdd} getAllContributions={getContributionsByDonor} contribution={contribution}  />
-                <CreateContribution visible={visibleUpdate} setVisible={setVisibleUpdate} getAllContributions={getContributionsByDonor}contribution={contribution}  />
+                {user.active && <CreateContribution visible={visibleAdd} setVisible={setVisibleAdd} getAllContributions={getContributionsByDonor} contribution={contribution} />}
+                {user.active && <CreateContribution visible={visibleUpdate} setVisible={setVisibleUpdate} getAllContributions={getContributionsByDonor} contribution={contribution} />}
             </div>
         </>
     );
