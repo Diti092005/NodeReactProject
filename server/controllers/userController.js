@@ -10,6 +10,20 @@ function isValidPhone(phone) {
 function isValidEmail(email) {
     return /^[\w-.]+@([\w-]+\.)+[\w-]{2,}$/.test(email);
 }
+
+function isValidIsraeliID(id) {
+    id = String(id).trim();
+    if (id.length < 5 || id.length > 9 || !/^\d+$/.test(id)) return false;
+    id = id.padStart(9, '0');
+    let sum = 0;
+    for (let i = 0; i < 9; i++) {
+        let num = Number(id[i]) * ((i % 2) + 1);
+        if (num > 9) num -= 9;
+        sum += num;
+    }
+    return sum % 10 === 0;
+}
+
 const getAllUsers = async (req, res) => {//vvvvvvvvvvv
     const users = await User.find({ active: true }).lean()
     if (!users?.length) {
@@ -33,7 +47,6 @@ const getAllDonors = async (req, res) => {//vvvvvvvvvvvvvvvvvv
     res.json(donors)
 }
 
-
 const getUserById = async (req, res) => {//vvvvvvvvvvvvvvv
     const { id } = req.params
     const users = await User.find().lean({ active: true })
@@ -54,8 +67,11 @@ const addUser = async (req, res) => {
     if (!userId || !password || !fullname || !role) {
         return res.status(400).json({ message: 'userId, role, password and fullname are required' })
     }
+    if (!isValidIsraeliID(userId)) {
+        return res.status(400).json({ message: 'Invalid Israeli ID number.' });
+    }
     const duplicate = await User.findOne({ userId }).lean()
-    if (duplicate&&duplicate.active) {
+    if (duplicate) {
         return res.status(409).json({ message: "Duplicate user id" })
     }
     if (role !== 'Donor' && role !== 'Admin' && role !== 'Student')
@@ -79,12 +95,12 @@ const addUser = async (req, res) => {
         if (isValidEmail(email) === false)
             return res.status(400).json({ message: 'Invalid email' });
     }
-    if (isNaN(Number(numOfBuilding))) {
+    if (numOfBuilding&&isNaN(Number(numOfBuilding))) {
         return res.status(400).json({ message: 'Building number must be a number.' });
     }
     const newNum = Number(numOfBuilding)
 
-    const userObject = { userId, password: hashedPassword, fullname, email, phone, address: { city, street, numOfBuilding: newNum }, birthDate, active, role }
+    const userObject = { userId, password: hashedPassword, fullname, email, phone, address: { city, street, numOfBuilding: newNum }, birthDate, active:true, role }
     const user = await User.create(userObject)
     if (user) { // Created
         return res.status(201).json({
@@ -110,6 +126,9 @@ const updateUser = async (req, res) => {////vvvvvvvvvvvvv
     if (!user)
         return res.status(400).send("user is not exists")
     if (userId) {
+        if (!isValidIsraeliID(userId)) {
+            return res.status(400).json({ message: 'Invalid Israeli ID number.' });
+        }
         const existingUser = await User.findOne({ userId, active: true });
         if (existingUser && user.userId !== userId) {
             return res.status(400).send("User with same userId already exists");

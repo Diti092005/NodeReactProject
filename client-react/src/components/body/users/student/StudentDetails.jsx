@@ -24,7 +24,12 @@ export default function StudentDetails() {
     };
     const footer = (
         <>
-            <Button label="update" icon="pi pi-pencil" onClick={() => showEditForm()} />
+            <Button label="update" icon="pi pi-pencil" onClick={() => {
+                if (user.active)
+                    showEditForm()
+                else
+                    alert("You can't update details when you are not active")
+            }} />
         </>
     );
 
@@ -35,8 +40,8 @@ export default function StudentDetails() {
                 { headers: { Authorization: `Bearer ${token}` } });
             dispatch(setUser(res.data));
         }
-        catch {
-
+        catch (err) {
+            console.error(err)
         }
     };
 
@@ -46,12 +51,12 @@ export default function StudentDetails() {
                 <p className="m-0">
                     <p>name: {user.fullname}</p>
                     <p>ID: {user.userId}</p>
-                    <p>email: {user.email}</p>
-                    <p>phone: {user.phone}</p>
-                    {user.address && <p>address: </p>}
+                    {user.email && <p>email: {user.email}</p>}
+                    {user.phone && <p>phone: {user.phone}</p>}
+                    {(user.address?.city || user.address?.street || user.address?.numOfBuilding !== 0) && <p>address: </p>}
                     {user.address?.city && <p>city: {user.address?.city}</p>}
                     {user.address?.street && <p>street: {user.address.street}</p>}
-                    {user.address?.numOfBuilding ? <p>building number: {user.address?.numOfBuilding}</p>: ''}
+                    {user.address?.numOfBuilding ? <p>building number: {user.address?.numOfBuilding}</p> : ''}
                     {user.birthDate?.birthDate && <p>birthDate: {format(user.birthDate, 'dd/MM/yyyy')}</p>}
                 </p>
             </Card>

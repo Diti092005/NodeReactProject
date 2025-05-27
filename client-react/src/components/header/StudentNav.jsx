@@ -15,7 +15,7 @@ const StudentNav = () => {
             }
         },
         {
-            label: 'StudentDSetails',
+            label: 'StudentDetails',
             icon: 'pi pi-user',
             command: () => {
                 navigate('./studentDetails')

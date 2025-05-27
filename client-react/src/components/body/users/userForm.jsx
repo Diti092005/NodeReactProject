@@ -22,9 +22,9 @@ const UserForm = ({ userDialog, setUserDialog, getUsers, user, setAdd, setUser, 
         city: user?.address?.city || "",
         street: user?.address?.street || "",
         numOfBuilding: user?.address?.numOfBuilding || "",
-        role: user?.role || "Donor",
+        // role: user?.role || "Donor",
         userId: user?.userId,
-        birthDate: user?.birthDate? new Date(user.birthDate) : null,
+        birthDate: user?.birthDate ? new Date(user.birthDate) : null,
         role: user?.role || null
     }
     const { control, formState: { errors }, handleSubmit, reset } = useForm({ defaultValues });
@@ -32,21 +32,39 @@ const UserForm = ({ userDialog, setUserDialog, getUsers, user, setAdd, setUser, 
     const onSubmit = async (data) => {
         console.log(data);
         if (user?._id) {
-            const res = await axios.put("http://localhost:1111/api/user",
-                data,
-                { headers: { Authorization: `Bearer ${token}` } })
-
+            try {
+                const res = await axios.put("http://localhost:1111/api/user",
+                    data,
+                    { headers: { Authorization: `Bearer ${token}` } })
+            }
+            catch (err) {
+                console.error(err);
+            }
         }
         else {
             if (!data.role) {
                 data.role = "Donor"
+                try {
+                    const res = await axios.post("http://localhost:1111/api/auth/register",
+                        data,
+                        { headers: { Authorization: `Bearer ${token}` } }
+                    )
+                }
+                catch (err) {
+                    console.error(err);
+                }
             }
-            const res = await axios.post("http://localhost:1111/api/user",
-                data,
-                { headers: { Authorization: `Bearer ${token}` } }
-            )
-
-
+            else {
+                try {
+                    const res = await axios.post("http://localhost:1111/api/user",
+                        data,
+                        { headers: { Authorization: `Bearer ${token}` } }
+                    )
+                }
+                catch (err) {
+                    console.error(err);
+                }
+            }
         }
         hideDialog()
         if (updateTheUser)
@@ -63,7 +81,19 @@ const UserForm = ({ userDialog, setUserDialog, getUsers, user, setAdd, setUser, 
             {/* <Button label="Save" icon="pi pi-check" onClick={save } /> */}
         </React.Fragment>
     );
-
+    function isValidIsraeliID(id) {
+        id = String(id).trim();
+        if (id.length < 5 || id.length > 9 || !/^\d+$/.test(id)) return false;
+        // השלמה ל-9 ספרות
+        id = id.padStart(9, '0');
+        let sum = 0;
+        for (let i = 0; i < 9; i++) {
+            let num = Number(id[i]) * ((i % 2) + 1);
+            if (num > 9) num -= 9;
+            sum += num;
+        }
+        return sum % 10 === 0;
+    }
     const hideDialog = () => {
         if (user) {
             setUser(false)
@@ -108,12 +138,26 @@ const UserForm = ({ userDialog, setUserDialog, getUsers, user, setAdd, setUser, 
 
                         <div className="field">
                             <span className="p-float-label">
-                                <Controller name="userId" control={control} rules={{ required: 'userId is required.' }} render={({ field, fieldState }) => (
-                                    <InputText id={field.userId} {...field} autoFocus className={classNames({ 'p-invalid': fieldState.invalid })} />
-                                )} />
-                                <label htmlFor="userId" className={classNames({ 'p-error': errors.name })}>userId*</label>
+                                <Controller
+                                    name="userId"
+                                    control={control}
+                                    rules={{
+                                        required: 'UserId is required.',
+                                        validate: value =>
+                                            isValidIsraeliID(value) || 'Please enter a valid Israeli ID number.'
+                                    }}
+                                    render={({ field, fieldState }) => (
+                                        <InputText
+                                            id={field.name}
+                                            {...field}
+                                            autoFocus
+                                            className={classNames({ 'p-invalid': fieldState.invalid })}
+                                        />
+                                    )}
+                                />
+                                <label htmlFor="userId" className={classNames({ 'p-error': errors.userId })}>userId*</label>
                             </span>
-                            {getFormErrorMessage('username')}
+                            {getFormErrorMessage('userId')}
                         </div>
                         <div className="field">
                             <span className="p-float-label p-input-icon-right">
@@ -145,8 +189,8 @@ const UserForm = ({ userDialog, setUserDialog, getUsers, user, setAdd, setUser, 
                                     control={control}
                                     rules={{
                                         pattern: {
-                                            value: /^0\d{1,2}-?\d{7}$/,
-                                            message: 'Invalid phone'
+                                            value: /^0(5\d-?\d{7}|[23489]-?\d{7}|7[2-9]\d-?\d{7})$/,
+                                            message: "Please enter a valid Israeli mobile or landline phone number."
                                         }
                                     }}
                                     render={({ field, fieldState }) => (
@@ -158,6 +202,7 @@ const UserForm = ({ userDialog, setUserDialog, getUsers, user, setAdd, setUser, 
                                         />
                                     )}
                                 />
+
                                 <label htmlFor="phone" className={classNames({ 'p-error': errors.phone })}>Phone</label>
                             </span>
                             {getFormErrorMessage('phone')}

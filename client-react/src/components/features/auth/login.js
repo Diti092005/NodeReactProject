@@ -40,7 +40,7 @@ export default function Login() {
                 navigate('../contributionDonor'); //
             }
             if (res.data.role.includes("Student")) {
-                navigate('../studentDetails')
+                navigate('../scholarshipForStudent')
             }
 
         } catch (error) {

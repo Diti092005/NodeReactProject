@@ -38,4 +38,21 @@ body {
       min-width: 0;
   }
 }
-  
+/* .responsive-filters {
+  display: flex;
+  gap: 1rem;
+  flex-wrap: wrap;
+}
+.responsive-filters .p-dropdown {
+  min-width: 150px;
+  flex: 1 1 200px;
+}
+.responsive-buttons {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 1em;
+}
+/* .responsive-buttons .p-button {
+  flex: 1 0 200px; /* כפתור יתפוס לפחות 200px, ואם אפשר יתרחב */
+  /* min-width: 150px; */
+/* } */ 

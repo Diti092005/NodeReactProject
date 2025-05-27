@@ -1,104 +1,106 @@
-import { BrowserRouter as Router, Route, Routes } from "react-router-dom";
+import React, { useRef, useEffect, useState } from "react";
 import axios from "axios";
-import React, { useRef } from "react";
-import { useEffect, useState } from "react";
 import { DataTable } from 'primereact/datatable';
 import { Column } from 'primereact/column';
 import { Button } from "primereact/button";
-import { Dropdown } from 'primereact/dropdown'; // Dropdown for filtering
+import { Dropdown } from 'primereact/dropdown';
 import { useSelector } from "react-redux";
 import { Toolbar } from "primereact/toolbar";
-import FormCRStatus from "./FormCRStatus";
 import { format } from "date-fns";
+import FormCRStatus from "./FormCRStatus";
 
 const CRStatus = () => {
     const { token } = useSelector((state) => state.token);
     const [visible, setVisible] = useState(false);
     const cr = useRef(null);
-    const printRef = useRef(null); // Ref for the print container
+    const printRef = useRef(null);
     const [CRStatuses, setCRStatuses] = useState([]);
-    const [filteredCRStatuses, setFilteredCRStatuses] = useState([]); // Filtered data
+    const [filteredCRStatuses, setFilteredCRStatuses] = useState([]);
     const [CRStatus, setCRStatus] = useState({});
-    const [selectedYear, setSelectedYear] = useState(null); // Selected year for filtering
-    const [selectedMonth, setSelectedMonth] = useState(null); // Selected month for filtering
+    const [selectedYear, setSelectedYear] = useState(null);
+    const [selectedMonth, setSelectedMonth] = useState(null);
 
     const getAllCRStatuses = async () => {
-        const res = await axios.get('http://localhost:1111/api/cashRegisterStatus',
-            { headers: { Authorization: `Bearer ${token}` } });
-        setCRStatuses(res.data);
-        setFilteredCRStatuses(res.data); // Initialize filtered data
+        try {
+            const res = await axios.get('http://localhost:1111/api/cashRegisterStatus',
+                { headers: { Authorization: `Bearer ${token}` } });
+            setCRStatuses(res.data);
+            setFilteredCRStatuses(res.data);
+        }
+        catch (err) {
+            console.error(err);
+        }
     };
 
     useEffect(() => {
         getAllCRStatuses();
     }, []);
 
+    // סינון משולב לפי שנה וחודש
+    useEffect(() => {
+        let filtered = CRStatuses;
+
+        if (selectedYear) {
+            filtered = filtered.filter(status => new Date(status.date).getFullYear() === selectedYear);
+        }
+        if (selectedMonth) {
+            filtered = filtered.filter(status => (new Date(status.date).getMonth() + 1) === selectedMonth);
+        }
+
+        setFilteredCRStatuses(filtered);
+    }, [CRStatuses, selectedYear, selectedMonth]);
+
     const exportCSV = () => {
         cr.current.exportCSV();
     };
 
     const deleteCRStatus = async (rowData) => {
-
         const newDate = new Date(rowData.date)
-        if (newDate.getMonth() === new Date().getMonth()&& newDate.getFullYear()===new Date().getFullYear()) {
+        if (newDate.getMonth() === new Date().getMonth() && newDate.getFullYear() === new Date().getFullYear()) {
             if (window.confirm("Are you sure you want to delete this record?")) {
-                const res = await axios.delete(`http://localhost:1111/api/cashRegisterStatus/${rowData._id}`,
-                    { headers: { Authorization: `Bearer ${token}` } });
-                getAllCRStatuses();
+                try {
+                    await axios.delete(`http://localhost:1111/api/cashRegisterStatus/${rowData._id}`,
+                        { headers: { Authorization: `Bearer ${token}` } });
+                    getAllCRStatuses();
+                }
+                catch (err) {
+                    console.error(err);
+                }
             }
         }
     };
 
-    const updateButton = (rowData) => {
-        return (
-            <Button label="Update" icon="pi pi-pencil" onClick={() => {
-                const newDate = new Date(rowData.date)
-                if (newDate.getMonth() === new Date().getMonth()&&newDate.getFullYear()===new Date().getFullYear()) {
-                    setCRStatus(rowData);
-                    setVisible(true);
-                }
-                else{
-                    
-                }
-            }} ></Button>
-        );
-    };
+    const updateButton = (rowData) => (
+        <Button label="Update" icon="pi pi-pencil" onClick={() => {
+            const newDate = new Date(rowData.date)
+            if (newDate.getMonth() === new Date().getMonth() && newDate.getFullYear() === new Date().getFullYear()) {
+                setCRStatus(rowData);
+                setVisible(true);
+            }
+        }} />
+    );
 
-    const deleteButton = (rowData) => {
-        return (
-            <div className="flex align-items-center gap-2">
-                <Button icon="pi pi-trash" onClick={() => deleteCRStatus(rowData)} className="p-button-rounded" />
-            </div>
-        );
-    };
+    const deleteButton = (rowData) => (
+        <div className="flex align-items-center gap-2">
+            <Button icon="pi pi-trash" onClick={() => deleteCRStatus(rowData)} className="p-button-rounded" />
+        </div>
+    );
 
     const createCRStatus = () => {
         setCRStatus({ _id: 0, action: 'Expense', date: new Date(), sumPerAction: 0, currentSum: 0 });
         setVisible(true);
     };
-    const updateCRStatuses = async () => {
-        const resExpenses = await axios.post("http://localhost:1111/api/hapenOnceAMonth/Expense", {},
-            { headers: { Authorization: `Bearer ${token}` } });
-        const resIncomes = await axios.post("http://localhost:1111/api/hapenOnceAMonth/Income", {},
-            { headers: { Authorization: `Bearer ${token}` } });
-        getAllCRStatuses();
-    }
-    // Filter by year
-    const filterByYear = (year) => {
-        setSelectedYear(year);
-        const filtered = CRStatuses.filter(status => new Date(status.date).getFullYear() === year);
-        setFilteredCRStatuses(filtered);
-    };
+    //happen automatticly in the server  every firsyt day in month!!!
+    // const updateCRStatuses = async () => {
+    //     await axios.post("http://localhost:1111/api/hapenOnceAMonth/Expense", {},
+    //         { headers: { Authorization: `Bearer ${token}` } });
+    //     await axios.post("http://localhost:1111/api/hapenOnceAMonth/Income", {},
+    //         { headers: { Authorization: `Bearer ${token}` } });
+    //     getAllCRStatuses();
+    // }
 
-    // Filter by month
-    const filterByMonth = (month) => {
-        setSelectedMonth(month);
-        const filtered = CRStatuses.filter(status => new Date(status.date).getMonth() + 1 === month);
-        setFilteredCRStatuses(filtered);
-    };
-
-    const years = Array.from(new Set(CRStatuses.map(status => new Date(status.date).getFullYear()))); // Unique years
-    const months = Array.from({ length: 12 }, (_, i) => i + 1); // Months 1-12
+    const years = Array.from(new Set(CRStatuses.map(status => new Date(status.date).getFullYear())));
+    const months = Array.from({ length: 12 }, (_, i) => i + 1);
 
     const handlePrint = () => {
         const printContent = printRef.current;
@@ -111,18 +113,25 @@ const CRStatus = () => {
     };
 
     const startContent = (
-        <React.Fragment>
-            <Button icon="pi pi-plus" className="mr-2" label="Update Expences & Incoms" iconPos="right" onClick={updateCRStatuses} />
+        <div
+            style={{
+                display: 'flex',
+                flexWrap: 'wrap',
+                gap: '1em'
+            }}
+            className="responsive-buttons"
+        >
             <Button icon="pi pi-plus" className="mr-2" label="Add an Expense" iconPos="right" onClick={createCRStatus} />
             <Button icon="pi pi-print" className="mr-2" onClick={handlePrint} />
             <Button label="Export" icon="pi pi-download" iconPos="right" className="p-button-help" onClick={exportCSV} />
-        </React.Fragment>
+        </div>
     );
     const dateBodyTemplate = (rowData) => {
         if (rowData.date)
             return format(rowData.date, 'dd/MM/yyyy')
         return ""
     };
+
     return (
         <>
             <div className="card">
@@ -134,14 +143,14 @@ const CRStatus = () => {
                     <Dropdown
                         value={selectedYear}
                         options={years}
-                        onChange={(e) => filterByYear(e.value)}
+                        onChange={(e) => setSelectedYear(e.value)}
                         placeholder="Filter by Year"
                         className="p-dropdown"
                     />
                     <Dropdown
                         value={selectedMonth}
                         options={months}
-                        onChange={(e) => filterByMonth(e.value)}
+                        onChange={(e) => setSelectedMonth(e.value)}
                         placeholder="Filter by Month"
                         className="p-dropdown"
                     />
@@ -171,7 +180,7 @@ const CRStatus = () => {
                         </tr>
                     </thead>
                     <tbody>
-                        {CRStatuses.map((detail, index) => (
+                        {filteredCRStatuses.map((detail, index) => (
                             <tr key={index}>
                                 <td>{detail.action}</td>
                                 <td>{detail.sumPerAction}</td>

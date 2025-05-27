@@ -4,27 +4,27 @@ const StudentScholarship = require("../models/Student_Scholarship");
 const Contribution = require("../models/Contribution");
 const User = require("../models/User");
 
-const addStudentScholarshipOnceAMonthAndUpdateCRS = async (req, res) => {
-    try {
+// const addStudentScholarshipOnceAMonthAndUpdateCRS = async (req, res) => {
+    const addStudentScholarshipOnceAMonthAndUpdateCRS = async () => {
+
+   // try {
         const students = await User.find({ role: "Student" }).lean();
         if (!students?.length) return res.json([]);
 
         // // חישוב תחילת וסוף החודש הקודם
+        const startOfMonth = new Date();
+        startOfMonth.setMonth(startOfMonth.getMonth() - 1); // החודש הקודם
+        startOfMonth.setDate(1); // היום הראשון של החודש הקודם
+
+        const endOfMonth = new Date();
+        endOfMonth.setDate(0); // היום האחרון של החודש הקודם
+        //check
         // const startOfMonth = new Date();
-        // startOfMonth.setMonth(startOfMonth.getMonth() - 1); // החודש הקודם
-        // startOfMonth.setDate(1); // היום הראשון של החודש הקודם
+        // startOfMonth.setDate(1); // היום הראשון של החודש
 
         // const endOfMonth = new Date();
-        // endOfMonth.setDate(0); // היום האחרון של החודש הקודם
-        //check
-        const startOfMonth = new Date();
-        startOfMonth.setDate(1); // היום הראשון של החודש
-        console.log("Start of Month:", startOfMonth);
-        
-        const endOfMonth = new Date();
-        endOfMonth.setMonth(endOfMonth.getMonth() + 1); // היום הראשון של החודש הבא
-        endOfMonth.setDate(0); // היום האחרון של החודש הנוכחי
-        console.log("End of Month:", endOfMonth);
+        // endOfMonth.setMonth(endOfMonth.getMonth() + 1); // היום הראשון של החודש הבא
+        // endOfMonth.setDate(0); // היום האחרון של החודש הנוכחי
 
         const moneyForHour = await monthlyScholarshipDetailsSchema
             .findOne({
@@ -68,34 +68,35 @@ const addStudentScholarshipOnceAMonthAndUpdateCRS = async (req, res) => {
             currentSum: currentSum - totalExpenses, // Update the current sum
         });
 
-        res.json({
-            message: "Monthly scholarships processed and expenses updated.",
-            newCashRegisterStatus,
-        });
-    } catch (error) {
-        console.error(error);
-        res.status(500).send("An error occurred while processing scholarships.");
-    }
+        // res.json({
+        //     message: "Monthly scholarships processed and expenses updated.",
+        //     newCashRegisterStatus,
+        // });
+    // } catch (error) {
+    //     console.error(error);
+    //     res.status(500).send("An error occurred while processing scholarships.");
+    // }
 };
 
-const addMonthlyContributionsToCRS = async (req, res) => {
-    try {
+//const addMonthlyContributionsToCRS = async (req, res) => {
+const addMonthlyContributionsToCRS = async () => {
+    //try {
         // // חישוב תחילת וסוף החודש הקודם
+        const startOfMonth = new Date();
+        startOfMonth.setMonth(startOfMonth.getMonth() - 1); // החודש הקודם
+        startOfMonth.setDate(1); // היום הראשון של החודש הקודם
+
+        const endOfMonth = new Date();
+        endOfMonth.setDate(0); // היום האחרון של החודש הקודם
+        //check
         // const startOfMonth = new Date();
-        // startOfMonth.setMonth(startOfMonth.getMonth() - 1); // החודש הקודם
-        // startOfMonth.setDate(1); // היום הראשון של החודש הקודם
+        // startOfMonth.setDate(1); // היום הראשון של החודש
+        // console.log("Start of Month:", startOfMonth);
 
         // const endOfMonth = new Date();
-        // endOfMonth.setDate(0); // היום האחרון של החודש הקודם
-        //check
-        const startOfMonth = new Date();
-        startOfMonth.setDate(1); // היום הראשון של החודש
-        console.log("Start of Month:", startOfMonth);
-        
-        const endOfMonth = new Date();
-        endOfMonth.setMonth(endOfMonth.getMonth() + 1); // היום הראשון של החודש הבא
-        endOfMonth.setDate(0); // היום האחרון של החודש הנוכחי
-        console.log("End of Month:", endOfMonth);
+        // endOfMonth.setMonth(endOfMonth.getMonth() + 1); // היום הראשון של החודש הבא
+        // endOfMonth.setDate(0); // היום האחרון של החודש הנוכחי
+        // console.log("End of Month:", endOfMonth);
         // שליפת סך התרומות עבור החודש הנוכחי
         const totalDonations = await Contribution.aggregate([
             {
@@ -133,14 +134,14 @@ const addMonthlyContributionsToCRS = async (req, res) => {
             currentSum: currentSum + totalIncome,
         });
 
-        res.json({
-            message: "Monthly donations processed and income added to CRS.",
-            newCashRegisterStatus,
-        });
-    } catch (error) {
-        console.error(error);
-        res.status(500).send("An error occurred while processing donations.");
-    }
+        // res.json({
+        //     message: "Monthly donations processed and income added to CRS.",
+        //     newCashRegisterStatus,
+        // });
+    // } catch (error) {
+    //     console.error(error);
+    //     res.status(500).send("An error occurred while processing donations.");
+    // }
 };
 
 

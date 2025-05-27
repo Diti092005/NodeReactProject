@@ -4,7 +4,7 @@ import axios from "axios";
 import { useSelector } from 'react-redux';
 
 import { Button } from "primereact/button";
-export default function NumberOfHoursBtn() {
+export default function NumberOfHoursBtn({ getScholarships }) {
     const [isOpen, setIsOpen] = useState(false)
     const [isActive, setIsActive] = useState(true);
     const [currentScholarship, setCurrentScholarship] = useState({})
@@ -12,13 +12,18 @@ export default function NumberOfHoursBtn() {
 
     const getCurrentScholarship = async () => {
         const student = user._id
-        const res = await axios.get(`http://localhost:1111/api/studentScholarship/currentMonth/${student}`,
-            { headers: { Authorization: `Bearer ${token}` } }
-        )
-        const ss = await axios.get(`http://localhost:1111/api/studentScholarship`,
-            { headers: { Authorization: `Bearer ${token}` } }
-        )
-        setCurrentScholarship(res.data)
+        try {
+            const res = await axios.get(`http://localhost:1111/api/studentScholarship/currentMonth/${student}`,
+                { headers: { Authorization: `Bearer ${token}` } }
+            )
+            // const ss = await axios.get(`http://localhost:1111/api/studentScholarship`,
+            //     { headers: { Authorization: `Bearer ${token}` } }
+            // )
+            setCurrentScholarship(res.data)
+        }
+        catch (err) {
+            console.error(err);
+        }
     }
     useEffect(() => {
         getCurrentScholarship();
@@ -40,7 +45,7 @@ export default function NumberOfHoursBtn() {
         <div className="flex flex-wrap gap-2">
             {isActive && currentScholarship === "" ? <Button label="Enter number of hours" icon="pi pi-plus" severity="success" onClick={openForm} /> : <></>}
             {isActive && currentScholarship !== "" ? <Button label="Update number of hours" icon="pi pi-pencil" severity="success" onClick={openForm} /> : <></>}
-            {isOpen && <EnterNumberOfHours setIsOpen={setIsOpen} currentScholarship={currentScholarship} isOpen={isOpen} ></EnterNumberOfHours>}
-            {currentScholarship && <EnterNumberOfHours setIsOpen={setIsOpen} currentScholarship={currentScholarship} isOpen={isOpen}></EnterNumberOfHours>}        </div>
+            {isOpen && <EnterNumberOfHours getScholarships={getScholarships} setIsOpen={setIsOpen} currentScholarship={currentScholarship} isOpen={isOpen} ></EnterNumberOfHours>}
+            {currentScholarship && <EnterNumberOfHours getScholarships={getScholarships} setIsOpen={setIsOpen} currentScholarship={currentScholarship} isOpen={isOpen}></EnterNumberOfHours>}        </div>
     )
 }

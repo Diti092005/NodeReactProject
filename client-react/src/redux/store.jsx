@@ -15,7 +15,6 @@ const persistedTokenReducer = persistReducer(persistConfig, tokenSlice);
 const store = configureStore({
   reducer: {
     token: persistedTokenReducer, // Persisted token reducer
-   
   },
 });
 

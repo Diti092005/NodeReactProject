@@ -10,7 +10,7 @@ import { Calendar } from 'primereact/calendar';
 import { InputNumber } from 'primereact/inputnumber';
 const EnterNumberOfHours = ({
     //studentDialog, setStudentDialog , student,setStudent, 
-    setIsOpen, isOpen, currentScholarship }) => {
+    setIsOpen, isOpen, currentScholarship, getScholarships }) => {
     const [showMessage, setShowMessage] = useState(false);
     const [showMessageError, setShowMessageError] = useState(false);
     const { user, token, role } = useSelector((state) => state.token);
@@ -21,11 +21,16 @@ const EnterNumberOfHours = ({
         numHours: currentScholarship?.numHours ?? 0
     }
     const getNumHoursInCurMonth = async () => {
-        const res = await axios.get("http://localhost:1111/api/monthlyScholarshipDetails/thisMonth",
-             { headers: { Authorization: `Bearer ${token}` } })
-        if (res.data != "")
-            setMaxHoursInCurMonth(res.data.MaximumNumberOfHours)
-        console.log(res.data);
+        try {
+            const res = await axios.get("http://localhost:1111/api/monthlyScholarshipDetails/thisMonth",
+                { headers: { Authorization: `Bearer ${token}` } })
+            if (res.data != "")
+                setMaxHoursInCurMonth(res.data.MaximumNumberOfHours)
+            console.log(res.data);
+        }
+        catch (err) {
+            console.error(err);
+        }
     }
     useEffect(() => {
         getNumHoursInCurMonth()
@@ -35,17 +40,28 @@ const EnterNumberOfHours = ({
         data = { numHours: data.numHours, student: user._id, date: new Date(), sumMoney: 0 }//==================================
         //===============================>>
         if (currentScholarship !== "") {
-            data = { ...data, id: currentScholarship._id }
-            const res = await axios.put("http://localhost:1111/api/studentScholarship/",
-                data,
-                { headers: { Authorization: `Bearer ${token}` } }
-            )
+            try {
+                data = { ...data, id: currentScholarship._id }
+                const res = await axios.put("http://localhost:1111/api/studentScholarship/",
+                    data,
+                    { headers: { Authorization: `Bearer ${token}` } }
+                )
+            }
+            catch (err) {
+                console.error(err);
+            }
         } else {
-            const res = await axios.post("http://localhost:1111/api/studentScholarship/",
-                data,
-                { headers: { Authorization: `Bearer ${token}` } }
-            )
+            try {
+                const res = await axios.post("http://localhost:1111/api/studentScholarship/",
+                    data,
+                    { headers: { Authorization: `Bearer ${token}` } }
+                )
+            }
+            catch (err) {
+                console.error(err);
+            }
         }
+        getScholarships();
         setIsOpen(false)
     }
     const getFormErrorMessage = (name) => {

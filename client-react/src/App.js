@@ -17,6 +17,7 @@ import StudentDetails from './components/body/users/student/StudentDetails';
 import DonorNav from './components/header/DonorNav';import ShowContributionAccToDonor from './components/body/contributions/ShowContributionAccToDonor';
 import Users from './components/body/users/Users';
 import ScholarshipForStudent from './components/body/users/student/ScholarshipForStudent';
+import StudentScholarships from './components/body/users/student/scholarships/StudentsScholarships';
 ;
 
 
@@ -45,6 +46,7 @@ function App() {
             <Route path='/paymentPage' element={<PaymentPage />} />
             <Route path='/showMSDetails' element={<ShowMSDetails />} />
             <Route path='/studentDetails' element={<StudentDetails />} />
+            <Route path='studentsScholarships' element={<StudentScholarships/>}/>
             <Route path="/addContribution" element={<CreateContribution />} />
             <Route path="/users" element={<Users />} />
           </Routes>
@@ -63,8 +65,8 @@ function App() {
                 <Route path='/logOut' element={<LogOut />} />
                 <Route path='/contributionDonor' element={<ShowContributionAccToDonor />} />
                 {/* <Route path="/homeDonor" element={<HomeDonor />} /> */}
-                <Route path="/addContribution" element={<CreateContribution />} />
-                <Route path="/paymentPage" element={<PaymentPage />} />
+                {/* <Route path="/addContribution" element={<CreateContribution />} />
+                <Route path="/paymentPage" element={<PaymentPage />} /> */}
               </Routes>
               :
               <Routes>

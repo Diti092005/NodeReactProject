@@ -19,13 +19,18 @@ const ShowMSDetails = () => {
     const [MSDetail, setMSDetail] = useState({});
     const [enableAdd, setEnableAdd] = useState(true)
     const getAllMSDetails = async () => {
-        const res = await axios.get('http://localhost:1111/api/monthlyScholarshipDetails',
-            { headers: { Authorization: `Bearer ${token}` } });
-        const addedMsdetails = await axios.get('http://localhost:1111/api/monthlyScholarshipDetails/thisMonth',
-            { headers: { Authorization: `Bearer ${token}` } });
-        if (addedMsdetails.data !== "")
-            setEnableAdd(false)
-        setMSDetails(res.data);
+        try {
+            const res = await axios.get('http://localhost:1111/api/monthlyScholarshipDetails',
+                { headers: { Authorization: `Bearer ${token}` } });
+            const addedMsdetails = await axios.get('http://localhost:1111/api/monthlyScholarshipDetails/thisMonth',
+                { headers: { Authorization: `Bearer ${token}` } });
+            if (addedMsdetails.data !== "")
+                setEnableAdd(false)
+            setMSDetails(res.data);
+        }
+        catch (err) {
+            console.error(err);
+        }
     };
 
     useEffect(() => {
@@ -42,10 +47,15 @@ const ShowMSDetails = () => {
         if (newDate.getMonth() === new Date().getMonth() && newDate.getFullYear() === new Date().getFullYear()) {
             if (window.confirm("Are you sure you want to delete this record?")) {
                 {
-                    const res = await axios.delete(`http://localhost:1111/api/monthlyScholarshipDetails/${rowData._id}`,
-                        { headers: { Authorization: `Bearer ${token}` } });
-                    getAllMSDetails();
-                    setEnableAdd(true)
+                    try {
+                        const res = await axios.delete(`http://localhost:1111/api/monthlyScholarshipDetails/${rowData._id}`,
+                            { headers: { Authorization: `Bearer ${token}` } });
+                        getAllMSDetails();
+                        setEnableAdd(true)
+                    }
+                    catch (err) {
+                        console.error(err);
+                    }
                 }
             }
         } else {

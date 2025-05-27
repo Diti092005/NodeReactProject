@@ -47,10 +47,15 @@ const ShowContributionAccToDonor = () => {
             return;
         }
         if (window.confirm("Are you sure you want to delete this record?")) {
+            try{
             await axios.delete(`http://localhost:1111/api/contribution/${rowData._id}`, {
                 headers: { Authorization: `Bearer ${token}` }
             });
             getContributionsByDonor();
+        }
+        catch (err) {
+            console.error(err);
+        }
         }
     };
 
@@ -72,6 +77,10 @@ const ShowContributionAccToDonor = () => {
         return (
             <>
                 <Button icon="pi pi-pencil" onClick={() => {
+                    if (!user.active) {
+                        alert("You can't update contributions when you are not active!");
+                        return;
+                    }
                     const contribDate = new Date(rowData.date);
                     const now = new Date();
                     if (contribDate.getMonth() !== now.getMonth() || contribDate.getFullYear() !== now.getFullYear()) {

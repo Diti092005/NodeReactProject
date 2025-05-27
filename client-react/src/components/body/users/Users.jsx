@@ -53,17 +53,20 @@ export default function Users() {
     const [filteredUsers, setFilterdUsers] = useState(null)
 
     const getUsers = async () => {
-        const res = await axios.get("http://localhost:1111/api/user",
-            { headers: { Authorization: `Bearer ${token}` } })
-        setUsers(res.data)
-        console.log(users);
-
-        setSelectedRole(selectedRole)
+        try {
+            const res = await axios.get("http://localhost:1111/api/user",
+                { headers: { Authorization: `Bearer ${token}` } })
+            setUsers(res.data)
+            console.log(users);
+            setSelectedRole(selectedRole)
+        }
+        catch (err) {
+            console.error(err);
+        }
     }
     useEffect(() => {
         getUsers();
         setSelectedRole(roles[0])
-
     }, []);
 
     useEffect(() => {
@@ -121,11 +124,11 @@ export default function Users() {
     const getRoleTagClass = (role) => {
         switch (role) {
             case 'Admin':
-                return { backgroundColor: '#B3E5FC', color: '#01579B' }; 
+                return { backgroundColor: '#B3E5FC', color: '#01579B' };
             case 'Donor':
-                return {  backgroundColor: '#FFF8E1', color: '#222' };   
+                return { backgroundColor: '#FFF8E1', color: '#222' };
             case 'Student':
-                return {background: '#A8E6CF', color: '#1a4d1a'};   
+                return { background: '#A8E6CF', color: '#1a4d1a' };
             default:
                 return {};
         }
@@ -138,27 +141,33 @@ export default function Users() {
             <Tag value={rowData.role} style={getRoleTagClass(rowData.role)} />
         );
     };
-    const handleDelete = async (rowData) => {
-        const res = await axios.delete(`http://localhost:1111/api/user/${rowData._id}`,
-            { headers: { Authorization: `Bearer ${token}` } })
-        getUsers();
-    };
+    // const handleDelete = async (rowData) => {
+    //     const res = await axios.delete(`http://localhost:1111/api/user/${rowData._id}`,
+    //         { headers: { Authorization: `Bearer ${token}` } })
+    //     getUsers();
+    // };
 
     const editUser = (user) => {
         setUser(user);
         setUserDialog(true);
     };
 
-    const hideDialog = () => {
-        setSubmitted(false);
-        setUserDialog(false);
-    };
+    // const hideDialog = () => {
+    //     setSubmitted(false);
+    //     setUserDialog(false);
+    // };
     const confirmDeleteUser = async (user) => {
         if (window.confirm("Are you sure you want to delete this record?")) {
             {
-                const res = await axios.put(`http://localhost:1111/api/user/${user._id}`,
-                    { headers: { Authorization: `Bearer ${token}` } });
-                getUsers();
+                try {
+                    const res = await axios.put(`http://localhost:1111/api/user/${user._id}`, {},
+                        { headers: { Authorization: `Bearer ${token}` } });
+                    getUsers();
+                }
+
+                catch (err) {
+                    console.error(err);
+                }
             }
         }
         // setUser(student);
@@ -167,14 +176,20 @@ export default function Users() {
     const actionBodyTemplate = (rowData) => {
         return (
             <React.Fragment>
-                <Button icon="pi pi-pencil" rounded outlined className="mr-2" onClick={() => { setUser(rowData); editUser(rowData) }} />
+                <Button icon="pi pi-pencil" rounded outlined className="mr-2" onClick={() => {
+                    if (rowData?.active) {
+                        setUser(rowData); editUser(rowData)
+                    }
+                    else
+                        alert("You can't update details when you are not active")
+                }} />
                 <Button icon="pi pi-trash" rounded outlined severity="danger" onClick={() => confirmDeleteUser(rowData)} />
             </React.Fragment>
         );
     };
-    const hideDeleteUsersDialog = () => {
-        setDeleteUserDialog(false);
-    };
+    // const hideDeleteUsersDialog = () => {
+    //     setDeleteUserDialog(false);
+    // };
 
     const openNew = (rowdata) => {
         setAdd(true);
@@ -190,7 +205,6 @@ export default function Users() {
     // };
     const addressBodyTemplate = (rowData) => {
         const { street, city, numOfBuilding } = rowData.address || {};
-       console.log( rowData.address);
         return [street, numOfBuilding, city].filter(Boolean).join(' ');
     };
     const birthDateBodyTemplate = (rowData) => {

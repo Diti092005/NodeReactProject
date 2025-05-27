@@ -2,6 +2,7 @@ require("dotenv").config()
 const express = require("express")
 const cors = require("cors")
 const mongoose = require("mongoose")
+const happenOnceAMonth=require("./controllers/happenOnceAMonth")
 
 const connectDB = require("./config/dbConn")
 connectDB()
@@ -22,23 +23,24 @@ app.use("/api/contribution",require("./routers/contribution_routes"))
 app.use("/api/cashRegisterStatus", require("./routers/cashRegisterStatusRoutes"))
 app.use("/api/monthlyScholarshipDetails",require("./routers/monthlyScholarshipDetailsRoutes"))
 app.use("/api/studentScholarship",require("./routers/studentScholarshipRoutes"))
-app.use("/api/hapenOnceAMonth",require("./routers/hapenOnceAMonthRoutes"))
+//app.use("/api/hapenOnceAMonth",require("./routers/hapenOnceAMonthRoutes"))
 app.use("/api/user",require("./routers/userRoutes"))
 
 
 app.get("/", (req, res) => {
     res.send("This is the home page")
 })
-// const scheduleMonthlyTask = async () => {
-//     const now = new Date();
-//     const currentDate = now.getDate();
-//     if (currentDate === 1) {
-//         await addStudentScholarshipOnceAMonth();
-//     }
-// };
+const scheduleMonthlyTask = async () => {
+    const now = new Date();
+    const currentDate = now.getDate();
+    if (currentDate === 1) {
+        await happenOnceAMonth.addMonthlyContributionsToCRS();
+        await happenOnceAMonth.addStudentScholarshipOnceAMonthAndUpdateCRS();
+    }
+};
 
-// // This function will run every 24 hours (86400000 milliseconds)
-// setInterval(scheduleMonthlyTask, 86400000);
+// This function will run every 24 hours (86400000 milliseconds)
+setInterval(scheduleMonthlyTask, 86400000);
 
 mongoose.connection.once('open', () => {
     console.log("connectDB");

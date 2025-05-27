@@ -18,10 +18,15 @@ const Contributions = () => {
     const [visibleUpdate, setVisibleUpdate] = useState(false);
     const [contribution, setContribution] = useState({})
     const getAllContributions = async () => {
-        const res = await axios.get('http://localhost:1111/api/contribution', { headers: { Authorization: `Bearer ${token}` } })
-        // // const sortedItems = res.data.sort((a, b) => a.id - b.id);
-        // // setUsers(sortedItems)
-        setContributions(res.data)
+        try {
+            const res = await axios.get('http://localhost:1111/api/contribution', { headers: { Authorization: `Bearer ${token}` } })
+            // // const sortedItems = res.data.sort((a, b) => a.id - b.id);
+            // // setUsers(sortedItems)
+            setContributions(res.data)
+        }
+        catch (err) {
+            console.log(err);
+        }
     }
     useEffect(() => {
         getAllContributions()
@@ -34,11 +39,15 @@ const Contributions = () => {
             alert("You can't delete contributions from previous months!");
             return;
         } if (window.confirm("Are you sure you want to delete this record?")) {
-
+            try{
             await axios.delete(`http://localhost:1111/api/contribution/${rowData._id}`, {
                 headers: { Authorization: `Bearer ${token}` }
             });
             getAllContributions();
+        }
+        catch (err) {
+            console.error(err);
+        }
         };
     }
     const updateButton = (rowData) => {

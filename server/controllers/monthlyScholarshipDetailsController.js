@@ -54,8 +54,8 @@ const getMonthlyScholarshipDetailsDate = async (req, res) => {//vvvvvvvvvvvvvvv
 
     if (!monthlyScholarshipDetails)
         return res.status(200).send("");
-    else
-        return res.json(monthlyScholarshipDetails );
+
+    res.send(monthlyScholarshipDetails);
 }
 
 const updateMonthlyScholarshipDetails = async (req, res) => {//vvvvvvvvvvvvvvvvv

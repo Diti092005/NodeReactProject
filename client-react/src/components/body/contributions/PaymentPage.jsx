@@ -88,21 +88,40 @@ const PaymentPage = (props) => {
         console.log(props.formData);
         if (role === "Admin") {
             if (props.formData.id === 0)
-                await axios.post("http://localhost:1111/api/contribution", props.formData,
-                    { headers: { Authorization: `Bearer ${token}` } });
+                try {
+                    await axios.post("http://localhost:1111/api/contribution", props.formData,
+                        { headers: { Authorization: `Bearer ${token}` } });
+                }
+                catch (err) {
+                    console.error(err);
+                }
             else {
-                await axios.put("http://localhost:1111/api/contribution", props.formData,
-                    { headers: { Authorization: `Bearer ${token}` } });
+                try {
+                    await axios.put("http://localhost:1111/api/contribution", props.formData,
+                        { headers: { Authorization: `Bearer ${token}` } });
+                }
+                catch (err) {
+                    console.error(err);
+                }
             }
         }
         else if (role === "Donor") {
             console.log("paymentDonor");
             if (props.formData.id === 0)
+                try{
                 await axios.post(`http://localhost:1111/api/contribution/donor/${user._id}`, props.formData,
-                    { headers: { Authorization: `Bearer ${token}` } });
+                    { headers: { Authorization: `Bearer ${token}` } });}
+                    catch (err) {
+                        console.error(err);
+                    }
             else {
+                try{
                 await axios.put(`http://localhost:1111/api/contribution/donor/${user._id}`, props.formData,
                     { headers: { Authorization: `Bearer ${token}` } });
+                }
+                catch (err) {
+                    console.error(err);
+                }
             }
         }
         props.getAllContributions()

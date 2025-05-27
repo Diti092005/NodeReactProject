@@ -9,8 +9,7 @@ import { Controller, useForm } from "react-hook-form";
 import { useSelector } from "react-redux";
 import CRStatus from "./CRStatus";
 import { current } from "@reduxjs/toolkit";
-const FormCRStatus=(props)=>{
-    
+const FormCRStatus = (props) => {
     const CRStatus = props.CRStatus
     const { token } = useSelector((state) => state.token);
     const [showMessage, setShowMessage] = useState(false);
@@ -33,21 +32,31 @@ const FormCRStatus=(props)=>{
     const { control, formState: { errors }, handleSubmit, reset } = useForm({ defaultValues });
 
     const onSubmit = async (data) => {
-        data.date=new Date()
-        if (data.sumPerAction >= 0 ) {
-            if(data._id === 0) {
-            const res = await axios.post("http://localhost:1111/api/cashRegisterStatus", data,
-                { headers: { Authorization: `Bearer ${token}` } })
-            setShowMessage(true);
-            setFormData(data);
-            reset();
-        }
+        data.date = new Date()
+        if (data.sumPerAction >= 0) {
+            if (data._id === 0) {
+                try {
+                    const res = await axios.post("http://localhost:1111/api/cashRegisterStatus", data,
+                        { headers: { Authorization: `Bearer ${token}` } })
+                    setShowMessage(true);
+                    setFormData(data);
+                    reset();
+                }
+                catch (err) {
+                    console.error(err);
+                }
+            }
             else {
-                const res = await axios.put(`http://localhost:1111/api/cashRegisterStatus`, data,
-                    { headers: { Authorization: `Bearer ${token}` } })
-                setShowMessage(true);
-                setFormData(data);
-                reset();
+                try {
+                    const res = await axios.put(`http://localhost:1111/api/cashRegisterStatus`, data,
+                        { headers: { Authorization: `Bearer ${token}` } })
+                    setShowMessage(true);
+                    setFormData(data);
+                    reset();
+                }
+                catch (err) {
+                    console.error(err);
+                }
             }
         }
         else {
@@ -65,7 +74,7 @@ const FormCRStatus=(props)=>{
     return (<>{showMessage ? <Dialog visible={showMessage} onHide={() => setShowMessage(false)} position="top" footer={dialogFooter} showHeader={false} breakpoints={{ '960px': '80vw' }} style={{ width: '30vw' }}>
         <div className="flex justify-content-center flex-column pt-6 px-3">
             <p style={{ lineHeight: 1.5, textIndent: '1rem' }}>
-            The operation was successful
+                The operation was successful
             </p>
         </div>
     </Dialog> : <></>}
@@ -90,11 +99,11 @@ const FormCRStatus=(props)=>{
                                 )} /> {getFormErrorMessage('sumPerAction')}</div>
                         </div>
                         <Button type="submit" label="Submit" className="mt-2" />
-                        <Button type="button" label="Cancel" className="mt-2" onClick={()=>{props.setVisible(false)}} />
+                        <Button type="button" label="Cancel" className="mt-2" onClick={() => { props.setVisible(false) }} />
                     </form>
                 </div>
             </div></Dialog>
-        </>
+    </>
     )
 }
 

@@ -38,18 +38,28 @@ const FormMSDetails = (props) => {
         data.date = new Date()
         if (data.MaximumNumberOfHours >= minHours && data.MaximumNumberOfHours <= maxHours && data.sumPerHour >= minSumPerHour && data.sumPerHour <= maxSumPerHour) {
             if (data._id === 0) {
-                const res = await axios.post("http://localhost:1111/api/monthlyScholarshipDetails", data,
-                    { headers: { Authorization: `Bearer ${token}` } })
-                setShowMessage(true);
-                setFormData(data);
-                reset();
+                try {
+                    const res = await axios.post("http://localhost:1111/api/monthlyScholarshipDetails", data,
+                        { headers: { Authorization: `Bearer ${token}` } })
+                    setShowMessage(true);
+                    setFormData(data);
+                    reset();
+                }
+                catch (err) {
+                    console.error(err);
+                }
             }
             else {
+                try{
                 const res = await axios.put(`http://localhost:1111/api/monthlyScholarshipDetails`, data,
                     { headers: { Authorization: `Bearer ${token}` } })
                 setShowMessage(true);
                 setFormData(data);
                 reset();
+            }
+            catch (err) {
+                console.error(err);
+            }
             }
         }
 
