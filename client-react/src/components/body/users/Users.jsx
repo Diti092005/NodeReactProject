@@ -160,11 +160,16 @@ export default function Users() {
         if (window.confirm("Are you sure you want to delete this record?")) {
             {
                 try {
+                    if (user.image[0]) {
+                        await axios.delete('http://localhost:1111/api/user/delete-image', {
+                            data: { url: user.image } },// שים לב - axios צריך data לא body
+                           { headers: { "Content-Type": "application/json" }}
+                        );
+                    }
                     const res = await axios.put(`http://localhost:1111/api/user/${user._id}`, {},
                         { headers: { Authorization: `Bearer ${token}` } });
                     getUsers();
                 }
-
                 catch (err) {
                     console.error(err);
                 }
@@ -178,7 +183,8 @@ export default function Users() {
             <React.Fragment>
                 <Button icon="pi pi-pencil" rounded outlined className="mr-2" onClick={() => {
                     if (rowData?.active) {
-                        setUser(rowData); editUser(rowData)
+                        setUser(rowData);
+                        editUser(rowData)
                     }
                     else
                         alert("You can't update details when you are not active")
@@ -212,6 +218,21 @@ export default function Users() {
             return format(rowData.birthDate, 'dd/MM/yyyy')
         return ""
     };
+    const imageBodyTemplate = (rowData) => {
+        if (!rowData.image) return null;
+        // אם הנתיב הוא יחסי (למשל: "/uploads/xxx.jpg"), תוסיף לו את כתובת השרת
+        const imageUrl = rowData.image.startsWith('http')
+            ? rowData.image
+            : `http://localhost:1111${rowData.image}`;
+        return (
+            <img
+                src={imageUrl}
+                alt={rowData.fullname}
+                style={{ width: 50, height: 50, objectFit: 'cover', borderRadius: '50%' }}
+            />
+        );
+    };
+
     const leftToolbarTemplate = () => {
         return (
             <div className="flex flex-wrap gap-2">
@@ -244,9 +265,10 @@ export default function Users() {
                 <Column field="email" header="Email" style={{ width: '10%' }}></Column>
                 <Column field="phone" header="Phone" style={{ width: '10%' }}></Column>
                 <Column field="address" header="Address" body={addressBodyTemplate} style={{ width: '10%' }}></Column>
-                <Column field="birthDate" header="BirthDate" body={birthDateBodyTemplate} style={{ width: '30%' }}></Column>
+                <Column field="birthDate" header="BirthDate" body={birthDateBodyTemplate} style={{ width: '10%' }}></Column>
                 <Column field="role" header="Role" body={roleBodyTemplate} ></Column>
-                <Column body={actionBodyTemplate} exportable={false} style={{ minWidth: '12rem' }}></Column>
+                <Column field="image" header="Image" body={imageBodyTemplate} style={{ width: '7%' }}></Column>
+                <Column body={actionBodyTemplate} exportable={false} style={{ width: '8%' }}></Column>
             </DataTable>
 
             {/* <Dialog visible={deleteUserDialog} style={{ width: '450px' }} header="Confirm" modal footer={
@@ -260,7 +282,6 @@ export default function Users() {
                     {user && (<span>Are you sure you want to delete <b>{user.fullname}</b>?</span>)}
                 </div> */}
             {/* </Dialog> */}
-
             {user ? <UserForm setUser={setUser} user={user} setUserDialog={setUserDialog} getUsers={getUsers} userDialog={userDialog}></UserForm> : <></>}
             {add ? <UserForm setUserDialog={setUserDialog} getUsers={getUsers} userDialog={userDialog} setAdd={setAdd} ></UserForm> : <></>}
 

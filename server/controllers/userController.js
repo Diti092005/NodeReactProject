@@ -1,7 +1,19 @@
 const { default: mongoose } = require("mongoose")
 const User = require("../models/User")
 const bcrypt = require("bcrypt")
+const crypto = require('crypto');
+
 const validator = require('validator');
+const { log } = require("console");
+async function fileHash(filePath) {
+    return new Promise((resolve, reject) => {
+        const hash = crypto.createHash('sha256');
+        const stream = fs.createReadStream(filePath);
+        stream.on('error', reject);
+        stream.on('data', chunk => hash.update(chunk));
+        stream.on('end', () => resolve(hash.digest('hex')));
+    });
+}
 
 function isValidPhone(phone) {
     return validator.isMobilePhone(phone, 'he-IL');
@@ -62,23 +74,25 @@ const getUserById = async (req, res) => {//vvvvvvvvvvvvvvv
     res.json(user)
 }
 
-const addUser = async (req, res) => { 
-    const { userId, password, fullname, email, phone, city, numOfBuilding, street, birthDate, active, role } = req.body
+const addUser = async (req, res) => {
+    console.log(req.body);
+     
+    const { userId, password, fullname, email, phone, city, numOfBuilding, street, birthDate, role,image } = req.body;
     if (!userId || !password || !fullname || !role) {
-        return res.status(400).json({ message: 'userId, role, password and fullname are required' })
+        return res.status(400).json({ message: 'userId, role, password and fullname are required' });
     }
     if (!isValidIsraeliID(userId)) {
         return res.status(400).json({ message: 'Invalid Israeli ID number.' });
     }
-    const duplicate = await User.findOne({ userId }).lean()
+    const duplicate = await User.findOne({ userId }).lean();
     if (duplicate) {
-        return res.status(409).json({ message: "Duplicate user id" })
+        return res.status(409).json({ message: "Duplicate user id" });
     }
     if (role !== 'Donor' && role !== 'Admin' && role !== 'Student')
-        return res.status(400).send("Role must be a User or a Donor or an Admin!!")
-    const hashedPassword = await bcrypt.hash(password, 10)
+        return res.status(400).send("Role must be Donor, Student or Admin!");
+    const hashedPassword = await bcrypt.hash(password, 10);
     if (phone && isValidPhone(phone) === false)
-        return res.status(400).send("Invalid phone")
+        return res.status(400).send("Invalid phone");
     if (birthDate) {
         const birth = new Date(birthDate);
         const today = new Date();
@@ -91,40 +105,56 @@ const addUser = async (req, res) => {
             return res.status(400).json({ message: 'You must be at least 18 years old.' });
         }
     }
-    if (email) {
-        if (isValidEmail(email) === false)
-            return res.status(400).json({ message: 'Invalid email' });
+    if (email && isValidEmail(email) === false) {
+        return res.status(400).json({ message: 'Invalid email' });
     }
-    if (numOfBuilding&&isNaN(Number(numOfBuilding))) {
+    if (numOfBuilding && isNaN(Number(numOfBuilding))) {
         return res.status(400).json({ message: 'Building number must be a number.' });
     }
-    const newNum = Number(numOfBuilding)
+    const newNum = Number(numOfBuilding);
 
-    const userObject = { userId, password: hashedPassword, fullname, email, phone, address: { city, street, numOfBuilding: newNum }, birthDate, active:true, role }
-    const user = await User.create(userObject)
+    
+
+    // בניית משתמש כולל image מהקובץ שהועלה
+    const userObject = {
+        userId,
+        password: hashedPassword,
+        fullname,
+        email,
+        phone,
+        address: { city, street, numOfBuilding: newNum },
+        birthDate,
+        active: true,
+        role,
+        image: image[0] 
+    };
+    const user = await User.create(userObject);
     if (user) { // Created
         return res.status(201).json({
             message: `New user ${user.fullname} created`,
             user
-        })
+        });
     } else {
-        return res.status(400).json({ message: 'Invalid user received' })
+        return res.status(400).json({ message: 'Invalid user received' });
     }
-}
+};
 
-const updateUser = async (req, res) => {////vvvvvvvvvvvvv
-    const { userId, password, fullname, email, phone, street, numOfBuilding, city, birthDate, role, id } = req.body
+const updateUser = async (req, res) => {
+    const { userId, fullname, email, phone, street, numOfBuilding, city, birthDate, role, id,image } = req.body;
     if (!id)
-        return res.status(400).send("Id is required")
+        return res.status(400).send("Id is required");
     if (!mongoose.Types.ObjectId.isValid(id))
-        return res.status(400).send("Not valid id")
-    const users = await User.find({ active: true }).lean()
+        return res.status(400).send("Not valid id");
+
+    const users = await User.find({ active: true }).lean();
     if (!users?.length) {
-        return res.status(404).json({ message: 'No users found' })
+        return res.status(404).json({ message: 'No users found' });
     }
-    const user = await User.findOne({ _id: id, active: true }).exec()
+
+    const user = await User.findOne({ _id: id, active: true }).exec();
     if (!user)
-        return res.status(400).send("user is not exists")
+        return res.status(400).send("user is not exists");
+
     if (userId) {
         if (!isValidIsraeliID(userId)) {
             return res.status(400).json({ message: 'Invalid Israeli ID number.' });
@@ -133,22 +163,21 @@ const updateUser = async (req, res) => {////vvvvvvvvvvvvv
         if (existingUser && user.userId !== userId) {
             return res.status(400).send("User with same userId already exists");
         }
-        user.userId = userId
+        user.userId = userId;
     }
-    if (password)
-        user.password = password
+
     if (fullname)
-        user.fullname = fullname
+        user.fullname = fullname;
     if (email && isValidEmail(email) === true)
-        user.email = email
+        user.email = email;
     if (phone && isValidPhone(phone) === true)
-        user.phone = phone
+        user.phone = phone;
     if (street)
-        user.address.street = street
+        user.address.street = street;
     if (city)
-        user.address.city = city
+        user.address.city = city;
     if (numOfBuilding && !isNaN(Number(numOfBuilding)))
-        user.address.numOfBuilding = Number(numOfBuilding)
+        user.address.numOfBuilding = Number(numOfBuilding);
     if (birthDate) {
         const birth = new Date(birthDate);
         const today = new Date();
@@ -158,18 +187,22 @@ const updateUser = async (req, res) => {////vvvvvvvvvvvvv
             age--;
         }
         if (age > 18) {
-            user.birthDate = birthDate
+            user.birthDate = birthDate;
         }
     }
     if (role) {
         if (role !== 'Donor' && role !== 'Admin' && role !== 'Student')
-            return res.status(400).send("role must be User or Donor or Admin!!")
-        user.role = role
+            return res.status(400).send("role must be Donor, Student or Admin!!");
+        user.role = role;
     }
-    const upUser = await user.save()
-    res.json(upUser)
-}
 
+    if (image) {
+        user.image =image[0];
+    }
+
+    const upUser = await user.save();
+    res.json(upUser);
+}
 const inactiveUserById = async (req, res) => {//vvvvvvvvvvvvvvv
     const { id } = req.params
     if (!id)

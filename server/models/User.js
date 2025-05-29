@@ -22,6 +22,9 @@ const userSchema = new mongoose.Schema({
     phone: {
         type: String,
     },
+    image: {
+        type: String
+    },
     address: {
         street: {
             type: String
@@ -31,20 +34,20 @@ const userSchema = new mongoose.Schema({
         },
         city: {
             type: String
-        } 
+        }
     },
     birthDate: {
         type: Date
-    }, 
+    },
     role: {
         type: String,
-        enum: ['Student', 'Admin','Donor'],
+        enum: ['Student', 'Admin', 'Donor'],
         default: "Student",
-        required:true
+        required: true
     },
-    active:{
-        type:Boolean,
-        default:true
+    active: {
+        type: Boolean,
+        default: true
     }
 }, { timestamps: true })
 
