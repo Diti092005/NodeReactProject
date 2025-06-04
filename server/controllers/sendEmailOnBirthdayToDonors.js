@@ -11,22 +11,22 @@ const transporter = nodemailer.createTransport({
 
 const sendBirthdayEmails = async () => {
   try {
-    const donors = await User.find({ role: "Donor" }).lean();
+    const donors = await User.find({ role: "Donor",active:true }).lean();
 
     const today = new Date();
-    const mmdd = `${String(today.getMonth() + 1).padStart(2, '0')}-${String(today.getDate()).padStart(2, '0')}`;
 
     for (const donor of donors) {
-      const donorBirthday = donor.birthDate?.slice(5); // MM-DD
-      if (donorBirthday === mmdd && donor.email) {
+      const donorBirthday = donor.birthDate 
+      if (donorBirthday&&donorBirthday.getMonth() === donorBirthday.getMonth()&& donorBirthday.getDay() === donorBirthday.getDay()&& donor.email) {
         try {
           await transporter.sendMail({
             from: process.env.EMAIL_USER,
             to: donor.email,
             subject: 'Happy Birthday!',
-            text: `Hello ${donor.name}, happy birthday!`
+            text: `Hello ${donor.fullname}, happy birthday,
+            thank you for all your contributions`
           });
-          console.log(`Sent birthday email to ${donor.name} (${donor.email})`);
+          console.log(`Sent birthday email to donor: ${donor.fullname} (${donor.email})`);
         } catch (err) {
           console.error(`Error sending to ${donor.email}:`, err);
         }

@@ -127,7 +127,7 @@ const addMonthlyContributionsToCRS = async () => {
         const currentSum = lastCashRegisterStatus ? lastCashRegisterStatus.currentSum : 0;
 
         // הוספת רשומה חדשה ל-CRS
-        const newCashRegisterStatus = await Cash_Register_Status.create({
+        const  newCashRegisterStatus = await Cash_Register_Status.create({
             action: "Income",
             sumPerAction: totalIncome,
             date: new Date(),

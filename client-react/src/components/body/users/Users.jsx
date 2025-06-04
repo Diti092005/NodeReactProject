@@ -1,25 +1,18 @@
 import React, { useEffect, useState } from 'react';
 import { DataTable } from 'primereact/datatable';
 import { Column } from 'primereact/column';
-import { InputText } from 'primereact/inputtext';
-import { InputNumber } from 'primereact/inputnumber';
 import { Dropdown } from 'primereact/dropdown';
 import { Tag } from 'primereact/tag';
-import { Calendar } from 'primereact/calendar';
 import axios from 'axios';
 import { Button } from 'primereact/button';
 import 'primeicons/primeicons.css';
 import { useSelector } from 'react-redux';
-import { Dialog } from 'primereact/dialog';
 import { Toast } from 'primereact/toast';
-import { classNames } from 'primereact/utils';
 import { useRef } from 'react';
 //import { emit } from '../../../../../server node/models/User';
 import { Toolbar } from 'primereact/toolbar';
-import { useForm, Controller } from 'react-hook-form';
 import UserForm from './userForm';
 import { format } from 'date-fns';
-import { useSearchParams } from 'react-router-dom';
 
 
 export default function Users() {
@@ -37,18 +30,6 @@ export default function Users() {
     const { token, role } = useSelector((state) => state.token);
     const toast = useRef(null);
     const dt = useRef(null);
-    // let defaultValues = {
-    //     id: null,
-    //     fullname: student?.fullname,
-    //     phone: null,
-    //     email: '',
-    //     city: student?.address?.city || "",
-    //     street: student?.address?.street || "",
-    //     buildingNumber: student?.address?.buildingNumber || "",
-    //     birthDate: '',
-    //     roles: '',
-    //     userId: ''
-    // };
     const [selectedRole, setSelectedRole] = useState("All");
     const [filteredUsers, setFilterdUsers] = useState(null)
 
@@ -89,37 +70,6 @@ export default function Users() {
         _users[index] = newData;
         setUsers(_users);
     };
-    // const dateEditor = (options) => {
-    //     //const [date, setDate] = useState(options.value);
-    //     console.log(options.value);
-    //     // const dateValue = options.value ? new Date(options.value) : null;
-
-    //     return (<div className="card flex justify-content-center">//
-    //         <Calendar value={options.value}  //dateFormat="dd/mm/yy" 
-    //             onChange={(e) => options.editorCallback(e.value.toLocaleDateString())} />
-    //     </div>
-    //         //<InputText type="text" value={options.value} onChange={(e) => options.editorCallback(e.target.value)} />;
-    //     )
-    // };
-    // const textEditor = (options) => {
-    //     return <InputText type="text" value={options.value} onChange={(e) => options.editorCallback(e.target.value)} />;
-    // };
-
-
-    // const roleEditor = (options) => {
-    //     return (
-    //         <Dropdown
-    //             value={options.value}
-    //             options={roles}
-    //             onChange={(e) => options.editorCallback(e.value)}
-    //             placeholder="Select a Role"
-    //             itemTemplate={(option) => {
-    //                 return <Tag value={option}
-    //                 ></Tag>;
-    //             }}
-    //         />
-    //     );
-    // };
 
     const getRoleTagClass = (role) => {
         switch (role) {
@@ -141,29 +91,21 @@ export default function Users() {
             <Tag value={rowData.role} style={getRoleTagClass(rowData.role)} />
         );
     };
-    // const handleDelete = async (rowData) => {
-    //     const res = await axios.delete(`http://localhost:1111/api/user/${rowData._id}`,
-    //         { headers: { Authorization: `Bearer ${token}` } })
-    //     getUsers();
-    // };
 
     const editUser = (user) => {
         setUser(user);
         setUserDialog(true);
     };
 
-    // const hideDialog = () => {
-    //     setSubmitted(false);
-    //     setUserDialog(false);
-    // };
     const confirmDeleteUser = async (user) => {
         if (window.confirm("Are you sure you want to delete this record?")) {
             {
                 try {
                     if (user.image[0]) {
                         await axios.delete('http://localhost:1111/api/user/delete-image', {
-                            data: { url: user.image } },// שים לב - axios צריך data לא body
-                           { headers: { "Content-Type": "application/json" }}
+                            data: { url: user.image, _id: user._id }
+                        },// שים לב - axios צריך data לא body
+                            { headers: { "Content-Type": "application/json" } }
                         );
                     }
                     const res = await axios.put(`http://localhost:1111/api/user/${user._id}`, {},
@@ -175,8 +117,6 @@ export default function Users() {
                 }
             }
         }
-        // setUser(student);
-        // setDeleteStudentDialog(true);
     };
     const actionBodyTemplate = (rowData) => {
         return (
@@ -193,9 +133,6 @@ export default function Users() {
             </React.Fragment>
         );
     };
-    // const hideDeleteUsersDialog = () => {
-    //     setDeleteUserDialog(false);
-    // };
 
     const openNew = (rowdata) => {
         setAdd(true);
@@ -206,9 +143,6 @@ export default function Users() {
     const exportCSV = () => {
         dt.current.exportCSV();
     };
-    // const confirmDeleteSelected = () => {
-    //     setDeleteStudentDialog(true);
-    // };
     const addressBodyTemplate = (rowData) => {
         const { street, city, numOfBuilding } = rowData.address || {};
         return [street, numOfBuilding, city].filter(Boolean).join(' ');
@@ -219,8 +153,7 @@ export default function Users() {
         return ""
     };
     const imageBodyTemplate = (rowData) => {
-        if (!rowData.image) return null;
-        // אם הנתיב הוא יחסי (למשל: "/uploads/xxx.jpg"), תוסיף לו את כתובת השרת
+        if (!rowData?.image) return null;
         const imageUrl = rowData.image.startsWith('http')
             ? rowData.image
             : `http://localhost:1111${rowData.image}`;
@@ -228,11 +161,21 @@ export default function Users() {
             <img
                 src={imageUrl}
                 alt={rowData.fullname}
-                style={{ width: 50, height: 50, objectFit: 'cover', borderRadius: '50%' }}
+                style={{
+                    maxWidth: 80,      // כל תמונה לא תעלה על 80 פיקסל ברוחב
+                    maxHeight: 80,     // ולא תעלה על 80 פיקסל בגובה
+                    width: 'auto',     // ישמור על הפרופורציה המקורית
+                    height: 'auto',
+                    objectFit: 'contain',
+                    display: 'block',
+                    background: '#fff', // רקע אחיד (לשקיפויות)
+                    margin: '0 auto',   // מרכז את התמונה במיכל
+                    border: '1px solid #eee',
+                    borderRadius: 8     // פינות עגולות עדינות, אפשר גם 0
+                }}
             />
         );
     };
-
     const leftToolbarTemplate = () => {
         return (
             <div className="flex flex-wrap gap-2">
@@ -271,17 +214,6 @@ export default function Users() {
                 <Column body={actionBodyTemplate} exportable={false} style={{ width: '8%' }}></Column>
             </DataTable>
 
-            {/* <Dialog visible={deleteUserDialog} style={{ width: '450px' }} header="Confirm" modal footer={
-                <React.Fragment>
-                    <Button label="No" icon="pi pi-times" className="p-button-text" onClick={hideDeleteUsersDialog} />
-                    <Button label="Yes" icon="pi pi-check" className="p-button-text" onClick={() => { handleDelete(user); hideDeleteUsersDialog(); }} />
-                </React.Fragment>
-            } onHide={hideDeleteUsersDialog}> */}
-            {/* <div className="confirmation-content">
-                    <i className="pi pi-exclamation-triangle" style={{ fontSize: '2rem' }} />
-                    {user && (<span>Are you sure you want to delete <b>{user.fullname}</b>?</span>)}
-                </div> */}
-            {/* </Dialog> */}
             {user ? <UserForm setUser={setUser} user={user} setUserDialog={setUserDialog} getUsers={getUsers} userDialog={userDialog}></UserForm> : <></>}
             {add ? <UserForm setUserDialog={setUserDialog} getUsers={getUsers} userDialog={userDialog} setAdd={setAdd} ></UserForm> : <></>}
 

@@ -90,15 +90,6 @@ const CRStatus = () => {
         setCRStatus({ _id: 0, action: 'Expense', date: new Date(), sumPerAction: 0, currentSum: 0 });
         setVisible(true);
     };
-    //happen automatticly in the server  every firsyt day in month!!!
-    // const updateCRStatuses = async () => {
-    //     await axios.post("http://localhost:1111/api/hapenOnceAMonth/Expense", {},
-    //         { headers: { Authorization: `Bearer ${token}` } });
-    //     await axios.post("http://localhost:1111/api/hapenOnceAMonth/Income", {},
-    //         { headers: { Authorization: `Bearer ${token}` } });
-    //     getAllCRStatuses();
-    // }
-
     const years = Array.from(new Set(CRStatuses.map(status => new Date(status.date).getFullYear())));
     const months = Array.from({ length: 12 }, (_, i) => i + 1);
 

@@ -126,7 +126,7 @@ const addUser = async (req, res) => {
         birthDate,
         active: true,
         role,
-        image: image[0] 
+        image
     };
     const user = await User.create(userObject);
     if (user) { // Created

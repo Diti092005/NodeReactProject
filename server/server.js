@@ -4,18 +4,22 @@ const cors = require("cors")
 const cron = require('node-cron');
 const mongoose = require("mongoose")
 const fs = require('fs');
+const multer = require('multer');
+const crypto = require('crypto');
+const path = require('path');
+
+const corsOptions = require("./config/corsOptions");
+const User = require('./models/User');
+const { sendBirthdayEmails } = require("./controllers/sendEmailOnBirthdayToDonors");
 const happenOnceAMonth = require("./controllers/happenOnceAMonth")
 const connectDB = require("./config/dbConn")
+
 connectDB()
-const multer = require('multer');
-const path = require('path');
-const corsOptions = require("./config/corsOptions");
-const { sendBirthdayEmails } = require("./controllers/sendEmailOnBirthdayToDonors");
-const { log } = require("console");
+
 // const { addMonthlyScholarshipDetails } = require("./controllers/monthlyScholarshipDetailsController")
 // const { addStudentScholarshipOnceAMonth } = require("./controllers/studentScholarshipController")
 
-const PORT = process.env.PORT || 99999
+const PORT = process.env.PORT || 1234
 const app = express()
 
 app.use(cors(corsOptions))
@@ -36,14 +40,6 @@ app.use('/uploads', express.static('uploads'));
 app.get("/", (req, res) => {
     res.send("This is the home page")
 })
-const scheduleMonthlyTask = async () => {
-    const now = new Date();
-    const currentDate = now.getDate();
-    if (currentDate === 1) {
-        await happenOnceAMonth.addMonthlyContributionsToCRS();
-        await happenOnceAMonth.addStudentScholarshipOnceAMonthAndUpdateCRS();
-    }
-};
 
 const storage = multer.diskStorage({
     destination: function (req, file, cb) {
@@ -55,29 +51,70 @@ const storage = multer.diskStorage({
 });
 
 const upload = multer({ storage: storage });
-app.delete('/api/user/delete-image', (req, res) => {
-    const { url } = req.body;
+
+const scheduleMonthlyTask = async () => {
+    const now = new Date();
+    const currentDate = now.getDate();
+    if (currentDate === 1) {
+        await happenOnceAMonth.addMonthlyContributionsToCRS();
+        await happenOnceAMonth.addStudentScholarshipOnceAMonthAndUpdateCRS();
+    }
+};
+
+app.delete('/api/user/delete-image', async (req, res) => {
+    const { url, _id } = req.body;
     if (!url) return res.status(400).json({ error: 'No URL provided' });
+    if (!_id) return res.status(400).json({ error: 'No User ID provided' });
     const filename = path.basename(url);
-    const filePath = path.join(__dirname, 'uploads', filename);
-    fs.unlink(filePath, (err) => {
-        if (err) {
-            console.error('Delete image error:', err);
-            return res.status(404).json({ error: 'File not found or could not be deleted' });
-        }
-        res.json({ success: true, message: 'File deleted' });
-    });
+
+    await User.findByIdAndUpdate(_id, { image: null });
+
+    const otherUsersCount = await User.countDocuments({ image: url });
+
+    if (otherUsersCount === 0) {
+        const filePath = path.join(__dirname, 'uploads', filename);
+        fs.unlink(filePath, (err) => {
+            if (err) {
+                console.error('Delete image error:', err);
+                return res.json({ success: true, message: 'Image reference removed, file not found' });
+            }
+            res.json({ success: true, message: 'Image reference removed and file deleted' });
+        });
+    } else {
+        res.json({ success: true, message: 'Image reference removed, file kept (in use by others)' });
+    }
 });
 
-app.post('/api/user/upload-image', upload.array("image", 10), (req, res) => {
+app.post('/api/user/upload-image', upload.array("image", 10), async (req, res) => {
     if (!req.files) return res.status(400).json({ error: 'No file uploaded' });
-    const files = req.files.map((file) => ({
-        url: `http://localhost:1111/uploads/${file.filename}`, // Construct file URL
-    }));
+
+    let files = [];
+
+    for (const file of req.files) {
+        // חשב hash של התוכן
+        const fileBuffer = fs.readFileSync(file.path);
+        const hash = crypto.createHash('sha256').update(fileBuffer).digest('hex');
+        const ext = path.extname(file.originalname);
+        const newFilename = `${hash}${ext}`;
+        const newPath = path.join('uploads', newFilename);
+
+        if (!fs.existsSync(newPath)) {
+            // אם לא קיים – העתק את הקובץ
+            fs.renameSync(file.path, newPath);
+        } else {
+            // אם קיים – מחק את הקובץ הזמני
+            fs.unlinkSync(file.path);
+        }
+
+        files.push({
+            url: `http://localhost:1111/uploads/${newFilename}`,
+        });
+    }
+
     res.json(files);
 });
 
-cron.schedule('0 0 * * *', scheduleMonthlyTask);
+cron.schedule('0 9 * * *', scheduleMonthlyTask);
 
 cron.schedule('0 9 * * *', sendBirthdayEmails);
 
