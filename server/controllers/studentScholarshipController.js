@@ -47,12 +47,11 @@ const getCurrentMonthScholarship = async (req, res) => {
         const existStudent = await User.findOne({ _id: student, role: "Student" }).lean()
         if (!existStudent)
             return res.status(400).send("Student is not exist")
-        // חישוב תחילת וסוף החודש הנוכחי
+
         const now = new Date();
         const startOfMonth = new Date(now.getFullYear(), now.getMonth(), 1);
         const endOfMonth = new Date(now.getFullYear(), now.getMonth() + 1, 0, 23, 59, 59, 999);
 
-        // חיפוש המילגה של הסטודנט בחודש הנוכחי
         const scholarship = await StudentScholarship.findOne({
             student: student,
             date: { $gte: startOfMonth, $lte: endOfMonth }
@@ -101,13 +100,8 @@ const updateStudentScholarship = async (req, res) => {//vvvvvvvvvvvvvvvv
         const studentScholarship = await StudentScholarship.findById(id).exec()
         if (!studentScholarship)
             return res.status(400).send("studentScholarship is not exist!!")
-        // if (sumMoney && sumMoney >= 0)/////////////////////////
             studentScholarship.sumMoney = sumMoney
-        // if (numHours) {//////////////////////////////////////////
-        //     const msd = getMonthlyScholarshipDetailsDate()
-        //     if (numHours >= 0 && numHours <= msd.MaximumNumberOfHours)
-               studentScholarship.numHours = numHours
-        // }
+        
         studentScholarship.date = date
         if (student) {
             if (!mongoose.Types.ObjectId.isValid(student))

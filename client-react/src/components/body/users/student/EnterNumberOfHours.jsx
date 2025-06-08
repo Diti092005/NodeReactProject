@@ -25,8 +25,8 @@ const EnterNumberOfHours = ({
             const res = await axios.get("http://localhost:1111/api/monthlyScholarshipDetails/thisMonth",
                 { headers: { Authorization: `Bearer ${token}` } })
             if (res.data != "")
-                setMaxHoursInCurMonth(res.data.MaximumNumberOfHours)
-            console.log(res.data);
+                {console.log(res.data);
+                    setMaxHoursInCurMonth(res.data.MaximumNumberOfHours)}
         }
         catch (err) {
             console.error(err);

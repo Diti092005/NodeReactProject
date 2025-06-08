@@ -45,7 +45,8 @@ export default function NumberOfHoursBtn({ getScholarships }) {
         <div className="flex flex-wrap gap-2">
             {isActive && currentScholarship === "" ? <Button label="Enter number of hours" icon="pi pi-plus" severity="success" onClick={openForm} /> : <></>}
             {isActive && currentScholarship !== "" ? <Button label="Update number of hours" icon="pi pi-pencil" severity="success" onClick={openForm} /> : <></>}
-            {isOpen && <EnterNumberOfHours getScholarships={getScholarships} setIsOpen={setIsOpen} currentScholarship={currentScholarship} isOpen={isOpen} ></EnterNumberOfHours>}
-            {currentScholarship && <EnterNumberOfHours getScholarships={getScholarships} setIsOpen={setIsOpen} currentScholarship={currentScholarship} isOpen={isOpen}></EnterNumberOfHours>}        </div>
+            {(isOpen ||currentScholarship)&& <EnterNumberOfHours getScholarships={getScholarships} setIsOpen={setIsOpen} currentScholarship={currentScholarship} isOpen={isOpen} ></EnterNumberOfHours>}
+            {/* {currentScholarship && <EnterNumberOfHours getScholarships={getScholarships} setIsOpen={setIsOpen} currentScholarship={currentScholarship} isOpen={isOpen}></EnterNumberOfHours>}      */}
+            </div> 
     )
 }

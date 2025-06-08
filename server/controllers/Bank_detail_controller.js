@@ -48,7 +48,6 @@ const updateBankDetails=async(req,res)=>{//////////////////vvvvvvvvvvvvvvvvvvv
     if (!mongoose.Types.ObjectId.isValid(id))
         return res.status(400).send("Not valid id")
     if (  !isNumeric(bankBranch)||!isNumeric(bankNumber)||!isNumeric(bankAccount)) {
-        //console.log(bankNumber);console.log(bankBranch);console.log(bankAccount);
         return res.status(400).send(" field must be a number ")
     }
     if(!User.find())

@@ -12,4 +12,4 @@ router.delete("/:id",verifyJWTAdmin, studentScholarshipController.deleteStudentS
 router.get("/currentMonth/:student",vevifyJWTStudent, studentScholarshipController.getCurrentMonthScholarship);
 router.get("/byStudent/:student",vevifyJWTStudent, studentScholarshipController.getStudentScholarshipByStudent);
 
-module.exports = router
+module.exports = router  

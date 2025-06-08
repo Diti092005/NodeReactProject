@@ -14,7 +14,7 @@ const ShowMSDetails = () => {
     const { token } = useSelector((state) => state.token);
     const [visible, setVisible] = useState(false);
     const ms = useRef(null);
-    const printRef = useRef(null); // Ref for the print container
+    const printRef = useRef(null);
     const [MSDetails, setMSDetails] = useState([]);
     const [MSDetail, setMSDetail] = useState({});
     const [enableAdd, setEnableAdd] = useState(true)

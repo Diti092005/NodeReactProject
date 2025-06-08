@@ -22,7 +22,6 @@ function isValidPhone(phone) {
 function isValidEmail(email) {
     return /^[\w-.]+@([\w-]+\.)+[\w-]{2,}$/.test(email);
 }//
-//const { JsonWebTokenError } = require("jsonwebtoken")
 const login = async (req, res) => {
     const { password, userId } = req.body
     if (!userId || !password) {
@@ -32,9 +31,6 @@ const login = async (req, res) => {
     if (!foundUser)
         return res.status(401).json({ message: 'Unauthorized' })
 
-    // if (!foundUser || !foundUser.active) {///active????????????????
-    //     return res.status(401).json({ message: 'Unauthorized' })
-    // }
     const match = await bcrypt.compare(password, foundUser.password)///////////vvvvvvvvvvv
 
     if (!match)

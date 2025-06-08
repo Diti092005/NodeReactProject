@@ -1,19 +1,11 @@
 const { default: mongoose } = require("mongoose")
 const User = require("../models/User")
 const bcrypt = require("bcrypt")
+const path = require('path');
 const crypto = require('crypto');
 
+const fs = require("fs")
 const validator = require('validator');
-const { log } = require("console");
-async function fileHash(filePath) {
-    return new Promise((resolve, reject) => {
-        const hash = crypto.createHash('sha256');
-        const stream = fs.createReadStream(filePath);
-        stream.on('error', reject);
-        stream.on('data', chunk => hash.update(chunk));
-        stream.on('end', () => resolve(hash.digest('hex')));
-    });
-}
 
 function isValidPhone(phone) {
     return validator.isMobilePhone(phone, 'he-IL');
@@ -75,9 +67,8 @@ const getUserById = async (req, res) => {//vvvvvvvvvvvvvvv
 }
 
 const addUser = async (req, res) => {
-    console.log(req.body);
-     
-    const { userId, password, fullname, email, phone, city, numOfBuilding, street, birthDate, role,image } = req.body;
+
+    const { userId, password, fullname, email, phone, city, numOfBuilding, street, birthDate, role, image } = req.body;
     if (!userId || !password || !fullname || !role) {
         return res.status(400).json({ message: 'userId, role, password and fullname are required' });
     }
@@ -113,9 +104,6 @@ const addUser = async (req, res) => {
     }
     const newNum = Number(numOfBuilding);
 
-    
-
-    // בניית משתמש כולל image מהקובץ שהועלה
     const userObject = {
         userId,
         password: hashedPassword,
@@ -129,7 +117,7 @@ const addUser = async (req, res) => {
         image
     };
     const user = await User.create(userObject);
-    if (user) { // Created
+    if (user) { 
         return res.status(201).json({
             message: `New user ${user.fullname} created`,
             user
@@ -140,7 +128,7 @@ const addUser = async (req, res) => {
 };
 
 const updateUser = async (req, res) => {
-    const { userId, fullname, email, phone, street, numOfBuilding, city, birthDate, role, id,image } = req.body;
+    const { userId, fullname, email, phone, street, numOfBuilding, city, birthDate, role, id, image } = req.body;
     if (!id)
         return res.status(400).send("Id is required");
     if (!mongoose.Types.ObjectId.isValid(id))
@@ -197,12 +185,13 @@ const updateUser = async (req, res) => {
     }
 
     if (image) {
-        user.image =image[0];
+        user.image = image[0];
     }
 
     const upUser = await user.save();
     res.json(upUser);
 }
+
 const inactiveUserById = async (req, res) => {//vvvvvvvvvvvvvvv
     const { id } = req.params
     if (!id)
@@ -221,4 +210,51 @@ const inactiveUserById = async (req, res) => {//vvvvvvvvvvvvvvv
     res.send(`Now User ${deletedUser.fullname} is Not Active!!`)
 }
 
-module.exports = { getAllUsers, getUserById, updateUser, inactiveUserById, getAllDonors, getAllStudents, addUser }
+const uploadImage = async (req, res) => {
+    if (!req.files) return res.status(400).json({ error: 'No file uploaded' });
+    let files = [];
+    for (const file of req.files) {
+        const fileBuffer = fs.readFileSync(file.path);
+        const hash = crypto.createHash('sha256').update(fileBuffer).digest('hex');
+        const ext = path.extname(file.originalname);
+        const newFilename = `${hash}${ext}`;
+        const newPath = path.join('uploads', newFilename);
+
+        if (!fs.existsSync(newPath)) {
+            fs.renameSync(file.path, newPath);
+        } else {
+            fs.unlinkSync(file.path);
+        }
+
+        files.push({
+            url: `http://localhost:1111/uploads/${newFilename}`,
+        });
+    }
+
+    res.json(files);
+}
+
+const deleteImage = async (req, res) => {
+    const { url, _id } = req.body;
+    if (!url) return res.status(400).json({ error: 'No URL provided' });
+    if (!_id) return res.status(400).json({ error: 'No User ID provided' });
+    const filename = path.basename(url);
+
+    await User.findByIdAndUpdate(_id, { image: null });
+
+    const otherUsersCount = await User.countDocuments({ image: url });
+    const dirpath = "M:\\NodeReactPro\\server\\"
+    if (otherUsersCount === 0) {
+        const filePath = path.join(dirpath, 'uploads', filename);
+        fs.unlink(filePath, (err) => {
+            if (err) {
+                console.error('Delete image error:', err);
+                return res.json({ success: true, message: 'Image reference removed, file not found' });
+            }
+            res.json({ success: true, message: 'Image reference removed and file deleted' });
+        });
+    } else {
+        res.json({ success: true, message: 'Image reference removed, file kept (in use by others)' });
+    }
+}
+module.exports = { getAllUsers, getUserById, updateUser, inactiveUserById, getAllDonors, getAllStudents, addUser, uploadImage, deleteImage }
