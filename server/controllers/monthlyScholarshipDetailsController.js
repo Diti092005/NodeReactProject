@@ -36,28 +36,53 @@ const getMonthlyScholarshipDetailsById = async (req, res) => {//vvvvvvvvvvvvvvv
     if (!monthlyScholarshipDetails)
         return res.status(400).send("monthlyScholarshipDetails is not exists")
     res.json(monthlyScholarshipDetails)
-}
-const getMonthlyScholarshipDetailsDate = async (req, res) => {//vvvvvvvvvvvvvvv
-    const startOfMonth = new Date();
-    startOfMonth.setDate(1);
-    startOfMonth.setHours(0, 0, 0, 0);
+}//mine
+// const getMonthlyScholarshipDetailsDate = async (req, res) => {//vvvvvvvvvvvvvvv
+//     const startOfMonth = new Date();
+//     startOfMonth.setDate(1);
+//     startOfMonth.setHours(0, 0, 0, 0);
 
-    const endOfMonth = new Date(startOfMonth);
-    endOfMonth.setMonth(endOfMonth.getMonth() + 1); // תחילת החודש הבא
+//     const endOfMonth = new Date(startOfMonth);
+//     endOfMonth.setMonth(endOfMonth.getMonth() + 1); // תחילת החודש הבא
 
-    const monthlyScholarshipDetails = await MonthlyScholarshipDetails.findOne({
-        date: {
-            $gte: startOfMonth,
-            $lt: endOfMonth
+//     const monthlyScholarshipDetails = await MonthlyScholarshipDetails.findOne({
+//         date: {
+//             $gte: startOfMonth,
+//             $lt: endOfMonth
+//         }
+//     }).lean();
+
+//     if (!monthlyScholarshipDetails)
+//         return res.status(200).send("");
+//     else
+//     { console.log("iiiiiiiiii");
+//         console.log(monthlyScholarshipDetails);
+//         res.json(monthlyScholarshipDetails);
+//     }
+// }
+const getMonthlyScholarshipDetailsDate = async (req, res) => {
+    try {
+        const startOfMonth = new Date();
+        startOfMonth.setDate(1); // Set to the first day of the current month
+        const endOfMonth = new Date();
+        endOfMonth.setMonth(endOfMonth.getMonth() + 1); // Set to the first day of the next month
+        endOfMonth.setDate(0); // Set to the last day of the current month
+
+        const monthlyScholarshipDetails = await MonthlyScholarshipDetails.findOne({
+            date: {
+                $gte: startOfMonth,
+                $lt: endOfMonth
+            }
+        }).lean();
+
+        if (!monthlyScholarshipDetails) {
+            return res.status(200).send(""); // Return empty response if not found
         }
-    }).lean();
-
-    if (!monthlyScholarshipDetails)
-        return res.status(200).send("");
-    else
-    { console.log("iiiiiiiiii");
-        console.log(monthlyScholarshipDetails);
-        res.json(monthlyScholarshipDetails);
+        res.json(monthlyScholarshipDetails); // Send the result as JSON
+    } catch (error) {
+        console.error(error);
+        if (!res || typeof res.status !== "function") return;
+        res.status(500).json({ error: "Internal server error" }); // Handle errors gracefully
     }
 }
 

@@ -4,7 +4,7 @@ import axios from "axios";
 import { useSelector } from 'react-redux';
 
 import { Button } from "primereact/button";
-export default function NumberOfHoursBtn({ getScholarships }) {
+export default function NumberOfHoursBtn({getScholarships}) {
     const [isOpen, setIsOpen] = useState(false)
     const [isActive, setIsActive] = useState(true);
     const [currentScholarship, setCurrentScholarship] = useState({})
@@ -12,14 +12,15 @@ export default function NumberOfHoursBtn({ getScholarships }) {
 
     const getCurrentScholarship = async () => {
         const student = user._id
-        try {
-            const res = await axios.get(`http://localhost:1111/api/studentScholarship/currentMonth/${student}`,
-                { headers: { Authorization: `Bearer ${token}` } }
-            )
-            // const ss = await axios.get(`http://localhost:1111/api/studentScholarship`,
-            //     { headers: { Authorization: `Bearer ${token}` } }
-            // )
-            setCurrentScholarship(res.data)
+        console.log(student);
+try{
+        const res = await axios.get(`http://localhost:1111/api/studentScholarship/currentMonth/${student}`,
+            { headers: { Authorization: `Bearer ${token}` }        
+        }
+        ) 
+        setCurrentScholarship(res.data)
+
+        // console.log(res.data, "currentScholarship");
         }
         catch (err) {
             console.error(err);
@@ -27,9 +28,10 @@ export default function NumberOfHoursBtn({ getScholarships }) {
     }
     useEffect(() => {
         getCurrentScholarship();
-        if (user.active == false)
+        if(user.active==false)
             setIsActive(false)
     }, []);
+
     useEffect(() => {
         getCurrentScholarship();
     }, [isOpen])
@@ -43,10 +45,10 @@ export default function NumberOfHoursBtn({ getScholarships }) {
 
     return (
         <div className="flex flex-wrap gap-2">
-            {isActive && currentScholarship === "" ? <Button label="Enter number of hours" icon="pi pi-plus" severity="success" onClick={openForm} /> : <></>}
-            {isActive && currentScholarship !== "" ? <Button label="Update number of hours" icon="pi pi-pencil" severity="success" onClick={openForm} /> : <></>}
-            {(isOpen ||currentScholarship)&& <EnterNumberOfHours getScholarships={getScholarships} setIsOpen={setIsOpen} currentScholarship={currentScholarship} isOpen={isOpen} ></EnterNumberOfHours>}
-            {/* {currentScholarship && <EnterNumberOfHours getScholarships={getScholarships} setIsOpen={setIsOpen} currentScholarship={currentScholarship} isOpen={isOpen}></EnterNumberOfHours>}      */}
-            </div> 
+            {isActive&& currentScholarship === "" ? <Button label="Enter number of hours" icon="pi pi-plus" severity="success" onClick={openForm} /> : <></>}
+            {isActive&&currentScholarship !== "" ? <Button label="Update number of hours" icon="pi pi-pencil" severity="success" onClick={openForm} /> : <></>}            {isOpen && <EnterNumberOfHours setIsOpen={setIsOpen} currentScholarship={currentScholarship} isOpen={isOpen}></EnterNumberOfHours>}
+
+{isOpen && <EnterNumberOfHours  getScholarships={getScholarships} setIsOpen={setIsOpen} currentScholarship={currentScholarship} isOpen={isOpen} ></EnterNumberOfHours>}
+            {currentScholarship && <EnterNumberOfHours getScholarships={getScholarships} setIsOpen={setIsOpen} currentScholarship={currentScholarship} isOpen={isOpen}></EnterNumberOfHours>}        </div>
     )
 }

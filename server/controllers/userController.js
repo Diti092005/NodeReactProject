@@ -6,6 +6,7 @@ const crypto = require('crypto');
 
 const fs = require("fs")
 const validator = require('validator');
+const { log } = require("console");
 
 function isValidPhone(phone) {
     return validator.isMobilePhone(phone, 'he-IL');
@@ -187,7 +188,6 @@ const updateUser = async (req, res) => {
     if (image) {
         user.image = image[0];
     }
-
     const upUser = await user.save();
     res.json(upUser);
 }

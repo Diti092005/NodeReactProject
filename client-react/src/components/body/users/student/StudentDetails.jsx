@@ -1,24 +1,24 @@
-import React from 'react';
+import React, { useEffect } from 'react';
 import { Card } from 'primereact/card';
 import { Button } from 'primereact/button';
 import UserForm from '../userForm';
 import { useState } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
 import axios from 'axios';
-import { setUser} from '../../../../redux/tokenSlice';
+import { logOut, setUser} from '../../../../redux/tokenSlice';
 import { format } from 'date-fns';
 
 export default function StudentDetails() {
     const { token, user } = useSelector((state) => state.token);
     const [student, setStudent] = useState();
-    const [studentDialog, setStudentDialog] = useState(false);
     const [editForm, setEditForm] = useState(false);
     const dispatch = useDispatch();
     const imageBodyTemplate = (rowData) => {
-        if (!rowData?.image) return null;
+        console.log(user?.image+"jkhgfdsa");
+        if (!user?.image && !rowData?.image) return null;
         const imageUrl = rowData.image.startsWith('http')
-            ? rowData.image
-            : `http://localhost:1111${rowData.image}`;
+            ? user.image
+            : `http://localhost:1111${user.image}`;
         return (
             <div style={{
                 width: '100%',
@@ -62,7 +62,15 @@ export default function StudentDetails() {
             }} />
         </>
     );
+    const getStudent=async()=>{
+        const res = await axios.get(`http://localhost:1111/api/user/${user._id}`,
+            { headers: { Authorization: `Bearer ${token}` } });
+            dispatch(setUser(res.data));
 
+    }
+useEffect(()=>{
+     getStudent()
+},[])
     const updateTheUser = async () => {
         try {
             const res = await axios.get(`http://localhost:1111/api/user/${user._id}`,

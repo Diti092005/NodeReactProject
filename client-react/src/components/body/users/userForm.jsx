@@ -350,7 +350,7 @@ const UserForm = ({
                                 accept="image/*" // Accept only image files
                                 maxFileSize={100000000} // Max file size: 1MB
                                 onUpload={handleFileSelect}
-                                chooseLabel="add image"
+                                chooseLabel={"update image"}
                                 cancelLabel="cacel"
                                 uploadLabel="Upload"
                                 auto

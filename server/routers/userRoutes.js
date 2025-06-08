@@ -21,7 +21,7 @@ const upload = multer({ storage: storage });
 router.get("/", verifyJWTAdmin, userConroller.getAllUsers);
 router.get("/donor", verifyJWTDonor, userConroller.getAllDonors);
 router.get("/student", verifyJWTAdmin, userConroller.getAllStudents);
-router.get("/:id", userConroller.getUserById);
+router.get("/:id",verifyJWTAll, userConroller.getUserById);
 router.put("/:id", verifyJWTAdmin, userConroller.inactiveUserById);
 router.put("/",verifyJWTAll, userConroller.updateUser);
 router.post("/",verifyJWTAll, userConroller.addUser);

@@ -5,7 +5,7 @@ const mongoose = require("mongoose")
 const { getMonthlyScholarshipDetailsDate } = require("../controllers/monthlyScholarshipDetailsController")
 
 const getAllStudentScholarships = async (req, res) => {//vvvvvvvvvvvv
-    const studentScholarships = await StudentScholarship.find().populate("student", { fullname: 1,userId:1, _id: 1 }).lean()
+    const studentScholarships = await StudentScholarship.find().populate("student", { fullname: 1, userId: 1, _id: 1 }).lean()
     if (!studentScholarships?.length) {
         res.json([])
     }
@@ -69,7 +69,7 @@ const getCurrentMonthScholarship = async (req, res) => {
 
 const addStudentScholarship = async (req, res) => {//vvvvvvvvvvvvvv
     const { sumMoney, numHours, date, student } = req.body
-    if ( !date || !student)
+    if (!date || !student)
         return res.status(400).send("All fields are required!!")
     const msd = getMonthlyScholarshipDetailsDate()
     if (numHours < 0 || numHours > msd.MaximumNumberOfHours)
@@ -100,8 +100,8 @@ const updateStudentScholarship = async (req, res) => {//vvvvvvvvvvvvvvvv
         const studentScholarship = await StudentScholarship.findById(id).exec()
         if (!studentScholarship)
             return res.status(400).send("studentScholarship is not exist!!")
-            studentScholarship.sumMoney = sumMoney
-        
+        studentScholarship.sumMoney = sumMoney
+        studentScholarship.numHours=numHours
         studentScholarship.date = date
         if (student) {
             if (!mongoose.Types.ObjectId.isValid(student))
